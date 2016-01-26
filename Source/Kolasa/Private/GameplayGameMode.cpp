@@ -4,7 +4,9 @@
 #include "GameplayGameState.h"
 #include "GameplayHUD.h"
 #include "GameplayGameMode.h"
+#include "GameplayCharacter.h"
 #include "GameplayPlayerController.h"
+
 
 
 
@@ -13,4 +15,5 @@ AGameplayGameMode::AGameplayGameMode() {
 	GameStateClass = AGameplayGameState::StaticClass();
 	HUDClass = AGameplayHUD::StaticClass();
 	PlayerControllerClass = AGameplayPlayerController::StaticClass();
+	DefaultPawnClass = AGameplayCharacter::StaticClass();
 }
