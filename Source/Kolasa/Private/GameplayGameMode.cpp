@@ -4,8 +4,13 @@
 #include "GameplayGameState.h"
 #include "GameplayHUD.h"
 #include "GameplayGameMode.h"
+#include "GameplayPlayerController.h"
+
+
 
 AGameplayGameMode::AGameplayGameMode() {
+
 	GameStateClass = AGameplayGameState::StaticClass();
 	HUDClass = AGameplayHUD::StaticClass();
+	PlayerControllerClass = AGameplayPlayerController::StaticClass();
 }
