@@ -11,9 +11,11 @@
 
 
 AGameplayGameMode::AGameplayGameMode() {
-
 	GameStateClass = AGameplayGameState::StaticClass();
 	HUDClass = AGameplayHUD::StaticClass();
 	PlayerControllerClass = AGameplayPlayerController::StaticClass();
-	DefaultPawnClass = AGameplayCharacter::StaticClass();
+	static ConstructorHelpers::FObjectFinder<UBlueprint> Blueprint(TEXT("Blueprint'/Game/AnimStarterPack/Ue4ASP_Character.Ue4ASP_Character'"));
+	if (Blueprint.Object) {
+		DefaultPawnClass = (UClass*)Blueprint.Object->GeneratedClass;
+	}
 }
