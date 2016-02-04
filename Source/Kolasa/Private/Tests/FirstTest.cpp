@@ -6,7 +6,6 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFloatTest, "UnitTests.Equal.Float", (EAutomati
 bool FFloatTest::RunTest(const FString& Parameters)
 {
 	TestEqual<float>("Float equeal", 1.0f, 1.1f);
-	//TestTrue("FHotReloadExampleTest Succes",true);
     return true;
 }
 
@@ -15,6 +14,5 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FIntTest, "UnitTests.Equal.Int", (EAutomationTe
 bool FIntTest::RunTest(const FString& Parameters)
 {
 	TestEqual<int>("Float equeal", 1,2);
-	//TestTrue("FHotReloadExampleTest Succes",true);
 	return true;
 }

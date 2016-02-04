@@ -15,4 +15,8 @@ class KOLASA_API AGameplayGameMode : public AGameMode
 
 public:
 	AGameplayGameMode();
+protected:
+	AGameplayGameMode(TCHAR* pawnBlueprintPath);
+private:
+	void InitDefaultPawn(TCHAR* blueprintPath);
 };

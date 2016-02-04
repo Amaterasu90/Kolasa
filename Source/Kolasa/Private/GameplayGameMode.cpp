@@ -5,17 +5,29 @@
 #include "GameplayHUD.h"
 #include "GameplayGameMode.h"
 #include "GameplayCharacter.h"
+#include "Characters/MyCharacter.h"
 #include "GameplayPlayerController.h"
 
-
-
-
-AGameplayGameMode::AGameplayGameMode() {
-	GameStateClass = AGameplayGameState::StaticClass();
-	HUDClass = AGameplayHUD::StaticClass();
-	PlayerControllerClass = AGameplayPlayerController::StaticClass();
-	static ConstructorHelpers::FObjectFinder<UBlueprint> Blueprint(TEXT("Blueprint'/Game/AnimStarterPack/Ue4ASP_Character.Ue4ASP_Character'"));
+void AGameplayGameMode::InitDefaultPawn(TCHAR* blueprintPath) {
+	static ConstructorHelpers::FObjectFinder<UBlueprint> Blueprint(blueprintPath);
 	if (Blueprint.Object) {
 		DefaultPawnClass = (UClass*)Blueprint.Object->GeneratedClass;
 	}
+	/*
+	//dynamic load
+	UBlueprint *characterBlueprint = LoadObject<UBlueprint>(NULL, blueprintPath);
+	if (characterBlueprint != nullptr) {
+		DefaultPawnClass = characterBlueprint->GetBlueprintClass();
+	}*/
+}
+
+AGameplayGameMode::AGameplayGameMode() : AGameplayGameMode(TEXT("Blueprint'/Game/AnimStarterPack/Ue4ASP_Character.Ue4ASP_Character'")) {
+	GameStateClass = AGameplayGameState::StaticClass();
+	HUDClass = AGameplayHUD::StaticClass();
+	PlayerControllerClass = AGameplayPlayerController::StaticClass();
+	DefaultPawnClass = AMyCharacter::StaticClass();
+}
+
+AGameplayGameMode::AGameplayGameMode(TCHAR* pawnBlueprintPath){
+	InitDefaultPawn(pawnBlueprintPath);
 }
