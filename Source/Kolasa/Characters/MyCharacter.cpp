@@ -165,16 +165,16 @@ void AMyCharacter::EventFireReleased() {
 }
 
 void AMyCharacter::EventJumpPressed() {
-	Jump();
-	UCharacterMovementComponent* characterMovement = Cast<UCharacterMovementComponent>(GetCharacterMovement());
-	JumpButtonDown = CanJump();
-	FVector velocity = characterMovement->Velocity;
-	float lenght = UKismetMathLibrary::VSize(velocity);
-	if (lenght > 0.0f) {
-		characterMovement->JumpZVelocity = 400.0f;
-	} 
-	else {
-		characterMovement->JumpZVelocity = 400.0f;
+	if (!ProneButtonDown)
+	{
+		Jump();
+		UCharacterMovementComponent* characterMovement = Cast<UCharacterMovementComponent>(GetCharacterMovement());
+		JumpButtonDown = CanJump();
+		FVector velocity = characterMovement->Velocity;
+		float lenght = UKismetMathLibrary::VSize(velocity);
+		if (lenght > 0.0f) {
+			characterMovement->JumpZVelocity = 400.0f;
+		}
 	}
 }
 
@@ -184,10 +184,7 @@ void AMyCharacter::EventJumpReleased() {
 	JumpButtonDown = false;
 	FVector velocity = characterMovement->Velocity;
 	float lenght = UKismetMathLibrary::VSize(velocity);
-	if (lenght > 0.0f) {
-		characterMovement->JumpZVelocity = 400.0f;
-	}
-	else {
+	if (!(lenght > 0.0f)) {
 		characterMovement->JumpZVelocity = 400.0f;
 	}
 }
