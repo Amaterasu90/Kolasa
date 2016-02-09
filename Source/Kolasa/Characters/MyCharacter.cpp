@@ -3,6 +3,8 @@
 #include "Kolasa.h"
 #include "MyCharacter.h"
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
+#include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
+#include "MyCharacter.h"
 
 void AMyCharacter::InitializeAnimationClass(USkeletalMeshComponent* inMesh, TCHAR* animBlueprintPath) {
 	UAnimBlueprint *animation = LoadObject<UAnimBlueprint>(NULL, animBlueprintPath);
@@ -44,6 +46,10 @@ void AMyCharacter::InitializeMovementComponent(UCharacterMovementComponent* inMo
 	inMovementComponent->MaxWalkSpeed = 270.0f;
 	inMovementComponent->MaxWalkSpeedCrouched = 125.0f;
 	inMovementComponent->bIgnoreBaseRotation = true;
+	inMovementComponent->SetWalkableFloorAngle(270.0f);
+
+
+	inMovementComponent->CurrentFloor.bWalkableFloor = true;
 }
 
 void AMyCharacter::InitializeSpringArmComponent() {
@@ -57,6 +63,21 @@ void AMyCharacter::InitializeSpringArmComponent() {
 void AMyCharacter::InitializeCamera() {
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>("PlayerCamera");
 	PlayerCamera->AttachTo(BoomCamera);
+}
+
+void AMyCharacter::InitializeTraceForward()
+{
+	TraceForward = CreateDefaultSubobject<UArrowComponent>("TraceForward");
+	TraceForward->SetRelativeLocation(FVector(0.0f, 0.0f, -75.0f));
+	TraceForward->AttachTo(RootComponent);
+}
+
+void AMyCharacter::InitializeTraceDown()
+{
+	TraceDown = CreateDefaultSubobject<UArrowComponent>("TraceDown");
+	TraceDown->SetRelativeLocation(FVector(0.0f, 0.0f, -75.0f));
+	TraceDown->AddLocalRotation(FRotator(-90.0f, 0.0f, 0.0f));
+	TraceDown->AttachTo(RootComponent);
 }
 
 AMyCharacter::AMyCharacter(TCHAR* skeletalMeshPath, TCHAR* animBlueprintPath) : Super() {
@@ -73,7 +94,9 @@ AMyCharacter::AMyCharacter(TCHAR* skeletalMeshPath, TCHAR* animBlueprintPath) : 
 	InitializeMovementComponent(movementComponent);
 
 	bUseControllerRotationYaw = false;
-	
+
+	InitializeTraceForward();
+	InitializeTraceDown();
 }
 
 // Sets default values
@@ -98,7 +121,16 @@ void AMyCharacter::BeginPlay()
 // Called every frame
 void AMyCharacter::Tick( float DeltaTime )
 {
-	Super::Tick( DeltaTime );
+	//Super::Tick( DeltaTime );
+	//tmp
+	FRotator UpdateRotator = GetYawRotator();
+	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(UpdateRotator);
+	AddMovementInput(ForwardVector, MovementInputFactor, false);
+	//MoveForward();
+	FHitResult result;
+	if (IsHitObstacle(TraceForward, ScanForwardArmLenght, result)) {
+		RotateOrtogonalToPlane(result);
+	}
 
 }
 
@@ -108,15 +140,16 @@ FRotator AMyCharacter::GetYawRotator() {
 }
 
 void AMyCharacter::EventMoveForward(float AxisValue) {
-	FRotator UpdateRotator = GetYawRotator();
+	/*FRotator UpdateRotator = GetYawRotator();
 	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(UpdateRotator);
-	AddMovementInput(ForwardVector, AxisValue, false);
+	AddMovementInput(ForwardVector, AxisValue, false);*/
 }
 
 void AMyCharacter::EventMoveRight(float AxisValue) {
 	FRotator UpdateRotator = GetYawRotator();
 	FVector RightVector = UKismetMathLibrary::GetRightVector(UpdateRotator);
-	AddMovementInput(RightVector, AxisValue, false);
+	if(AxisValue != 0.0f)
+		AddMovementInput(RightVector, AxisValue*MovementInputFactor, false);
 }
 
 void AMyCharacter::EventTurn(float AxisValue) {
@@ -136,24 +169,70 @@ void AMyCharacter::SetMaxWalkSpeed(float value) {
 	movementComponent->MaxWalkSpeed = value;
 }
 
+void AMyCharacter::RotateOrtogonalToPlane(FHitResult & OutHit)
+{
+	FVector normalToPlane = OutHit.ImpactNormal;
+	FVector forwardActor = GetActorForwardVector();
+	FVector upActor = GetActorUpVector();
+
+	FVector crossForwardAndUp = UKismetMathLibrary::Cross_VectorVector(forwardActor, upActor);
+	FVector newForward = UKismetMathLibrary::Cross_VectorVector(normalToPlane, crossForwardAndUp);
+	FVector newRight = UKismetMathLibrary::Cross_VectorVector(normalToPlane, newForward);
+	FVector newUp = upActor;
+
+	FRotator newRotation = UKismetMathLibrary::MakeRotationFromAxes(newForward, newRight, newUp);
+
+	SetActorRotation(newRotation);
+}
+
+void AMyCharacter::MoveForward()
+{
+	FHitResult hitResult;
+	FVector currentStep;
+	if (IsHitObstacle(TraceDown, ScanDownArmLenght, hitResult)) {
+		currentStep = TraceDown->GetForwardVector() * 5.0f;
+	}
+	else if (IsHitObstacle(TraceForward, ScanForwardArmLenght, hitResult)) {
+		currentStep = TraceForward->GetForwardVector() * 5.0f;
+	}
+	else {
+		currentStep = FVector(5.0f,0.0f,0.0f);
+	}
+
+	AddActorWorldOffset(currentStep);
+}
+
+bool AMyCharacter::IsHitObstacle(const UArrowComponent* arm, float armLenght, FHitResult& outResult)
+{
+
+	FVector currentLocation = arm->K2_GetComponentLocation();
+	FRotator currentRotation = arm->K2_GetComponentRotation();
+	FVector forwardVector = UKismetMathLibrary::GetForwardVector(currentRotation);
+	FVector scanArm = currentLocation + forwardVector * armLenght;
+
+	TArray<AActor*> ignore;
+	return UKismetSystemLibrary::LineTraceSingle_NEW(this, currentLocation, scanArm, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, outResult, true);
+}
+
+
 void AMyCharacter::EventCrouchPressed() {
-	this->CrouchButtonDown = true;
-	SetMaxWalkSpeed(125.0f);
+	/*this->CrouchButtonDown = true;
+	SetMaxWalkSpeed(125.0f);*/
 }
 
 void AMyCharacter::EventCrouchReleased() {
-	this->CrouchButtonDown = false;
-	SetMaxWalkSpeed(150.0f);
+	/*this->CrouchButtonDown = false;
+	SetMaxWalkSpeed(150.0f);*/
 }
 
 void AMyCharacter::EventSprintPressed() {
-	if (!this->CrouchButtonDown)
-		SetMaxWalkSpeed(270.0f);
+	/*if (!this->CrouchButtonDown)
+		SetMaxWalkSpeed(270.0f);*/
 }
 
 void AMyCharacter::EventSprintReleased() {
-	if (!this->CrouchButtonDown)
-		SetMaxWalkSpeed(150.0f);
+	/*if (!this->CrouchButtonDown)
+		SetMaxWalkSpeed(150.0f);*/
 }
 
 void AMyCharacter::EventFirePressed() {
@@ -189,6 +268,9 @@ void AMyCharacter::EventJumpReleased() {
 	}
 }
 
+void AMyCharacter::EventSavePressed() {
+}
+
 // Called to bind functionality to input
 void AMyCharacter::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 {
@@ -208,5 +290,6 @@ void AMyCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompone
 	InputComponent->BindAction("Fire", EInputEvent::IE_Released, this, &AMyCharacter::EventFireReleased);
 	InputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &AMyCharacter::EventJumpPressed);
 	InputComponent->BindAction("Jump", EInputEvent::IE_Released, this, &AMyCharacter::EventJumpReleased);
+	InputComponent->BindAction("L", EInputEvent::IE_Released, this, &AMyCharacter::EventSavePressed);
 }
 
