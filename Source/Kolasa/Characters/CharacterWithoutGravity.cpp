@@ -3,7 +3,9 @@
 #include "Kolasa.h"
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 #include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
+#include "DirectionMovementComponent.h"
 #include "CharacterWithoutGravity.h"
+#include "GravityMovementComponent.h"
 
 
 // Sets default values
@@ -32,8 +34,12 @@ void ACharacterWithoutGravity::InitializeAnimationBlueprint(TCHAR* animBlueprint
 }
 
 void ACharacterWithoutGravity::InitializeMovementComponent(){
-	MovementComponent = CreateDefaultSubobject<UNGPawnMovementComponent>("PawnMovementComponent");
-	MovementComponent->UpdatedComponent = RootComponent;
+	ForwardMovementComponent = CreateDefaultSubobject<UForwardMovementComponent>("ForwardComponent");
+	ForwardMovementComponent->SetForwardFactor(500.0f);
+	ForwardMovementComponent->UpdatedComponent = RootComponent;
+	GravityMovementComponent = CreateDefaultSubobject<UGravityMovementComponent>("GravityComponent");
+	GravityMovementComponent->SetForwardFactor(270.0f);
+	GravityMovementComponent->UpdatedComponent = RootComponent;
 }
 
 void ACharacterWithoutGravity::InitializeForwardTrace(){
@@ -58,7 +64,7 @@ void ACharacterWithoutGravity::EventMoveRight(float AxisValue){
 	FRotator UpdateRotator = GetYawRotator();
 	FVector RightVector = GetActorRightVector();
 	if (AxisValue != 0.0f)
-		AddMovementInput(RightVector, AxisValue * 100.0f, false);
+		GravityMovementComponent->AddInputVector(RightVector * AxisValue * 100.0f);
 }
 
 ACharacterWithoutGravity::ACharacterWithoutGravity(TCHAR * skeletalMeshPath, TCHAR * animBlueprintPath)
@@ -111,10 +117,10 @@ void ACharacterWithoutGravity::Tick( float DeltaTime ){
 	Super::Tick( DeltaTime );
 
 	MoveForward(DeltaTime);
-	FHitResult hitResult;
+	/*FHitResult hitResult;
 	if (IsHitObstacle(ForwardTrace, 100.0f, hitResult)){
 		RotateOrtogonalToPlane(hitResult);
-	}
+	}*/
 }
 
 // Called to bind functionality to input
@@ -127,7 +133,7 @@ void ACharacterWithoutGravity::SetupPlayerInputComponent(class UInputComponent* 
 
 UPawnMovementComponent * ACharacterWithoutGravity::GetMovementComponent() const
 {
-	return MovementComponent;
+	return GravityMovementComponent;
 }
 
 void ACharacterWithoutGravity::InitializeCapsule()
@@ -135,6 +141,8 @@ void ACharacterWithoutGravity::InitializeCapsule()
 	Capsule = CreateDefaultSubobject<UCapsuleComponent>("Capsule");
 	Capsule->SetCapsuleHalfHeight(100.0f);
 	Capsule->SetCapsuleRadius(45.0f);
+	FName name = FName("Pawn");
+	Capsule->SetCollisionProfileName(name);
 	RootComponent = Capsule;
 }
 
@@ -157,15 +165,10 @@ void ACharacterWithoutGravity::RotateOrtogonalToPlane(FHitResult & OutHit)
 void ACharacterWithoutGravity::MoveForward(float DeltaTime)
 {
 	FHitResult hitResult;
-	if (!IsHitObstacle(DownTrace, 25.0f, hitResult)) {
-		AddActorWorldOffset(DownTrace->GetForwardVector()*10.0f);
-	}
-	else if (!IsHitObstacle(ForwardTrace, 100.0f, hitResult)) {
-		AddActorWorldOffset(ForwardTrace->GetForwardVector()*10.0f);
-	}
-	else {
-		AddActorWorldOffset(FVector(270.0f, 0.0f, 0.0f));
-	}
+	FVector updateMove;
+	updateMove = DownTrace->GetForwardVector();
+	if(!updateMove.IsNearlyZero())
+		GravityMovementComponent->AddInputVector(updateMove);
 }
 
 bool ACharacterWithoutGravity::IsHitObstacle(const UArrowComponent* arm, float armLenght, FHitResult& outResult)

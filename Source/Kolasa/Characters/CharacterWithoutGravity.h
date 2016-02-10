@@ -3,7 +3,8 @@
 #pragma once
 
 #include "GameFramework/Pawn.h"
-#include "NGPawnMovementComponent.h"
+#include "GravityMovementComponent.h"
+#include "ForwardMovementComponent.h"
 #include "CharacterWithoutGravity.generated.h"
 
 UCLASS()
@@ -25,7 +26,10 @@ public:
 	UCameraComponent* PlayerCamera;
 
 	UPROPERTY(EditAnywhere)
-	UNGPawnMovementComponent* MovementComponent;
+	UGravityMovementComponent* GravityMovementComponent;
+
+	UPROPERTY(EditAnywhere)
+	UForwardMovementComponent* ForwardMovementComponent;
 
 	UArrowComponent* DownTrace;
 	UArrowComponent* ForwardTrace;
