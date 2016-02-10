@@ -15,8 +15,12 @@ class KOLASA_API UForwardMovementComponent : public UDirectionMovementComponent
 
 public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
+	void BlockMove();
+	void UnlockMove();
 protected:
 	virtual void Move(FVector value) override;
 	virtual void RotateOrtogonalToPlane(FHitResult & OutHit) override;
 	virtual FVector GetDisplacement(float DeltaTime) override;
+private:
+	bool bIsActive;
 };

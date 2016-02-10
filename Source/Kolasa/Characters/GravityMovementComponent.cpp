@@ -3,13 +3,20 @@
 #include "Kolasa.h"
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 #include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
+#include "ForwardMovementComponent.h"
 #include "GravityMovementComponent.h"
+
+void UGravityMovementComponent::SetForward(UForwardMovementComponent* forward){
+	forwardMovement = forward;
+}
 
 void UGravityMovementComponent::Move(FVector value){
 	if (!value.IsNearlyZero()) {
 		SafeMoveUpdatedComponent(value, UpdatedComponent->GetComponentRotation(), true, Hit);
-		if (Hit.IsValidBlockingHit())
+		if (Hit.IsValidBlockingHit()) {
+			forwardMovement->UnlockMove();
 			RotateOrtogonalToPlane(Hit);
+		}
 	}
 }
 
@@ -31,10 +38,7 @@ void UGravityMovementComponent::RotateOrtogonalToPlane(FHitResult & OutHit) {
 }
 
 FVector UGravityMovementComponent::GetDisplacement(float DeltaTime){
-	FVector updateMove = ConsumeInputVector();
-	//remove float error
-	updateMove = FVector(0.0f, 0.0f, 1.0f) * updateMove;
-	updateMove.Normalize();
+	FVector updateMove = -UpdatedComponent->GetUpVector();
 	return updateMove.GetClampedToMaxSize(1.0f) * DeltaTime * ForwardFactor;
 }
 

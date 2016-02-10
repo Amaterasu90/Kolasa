@@ -66,7 +66,4 @@ private:
 	void EventLookUp(float AxisValue);
 	
 	FRotator GetYawRotator();
-	void RotateOrtogonalToPlane(FHitResult & OutHit);
-	bool IsHitObstacle(const UArrowComponent* arm, float armLenght, FHitResult& outResult);
-	void MoveForward(float DeltaTime);
 };

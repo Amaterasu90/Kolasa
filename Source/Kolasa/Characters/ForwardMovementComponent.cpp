@@ -5,9 +5,19 @@
 #include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
 #include "ForwardMovementComponent.h"
 
+void UForwardMovementComponent::BlockMove(){
+	bIsActive = false;
+}
+
+void UForwardMovementComponent::UnlockMove(){
+	bIsActive = true;
+}
+
 void UForwardMovementComponent::Move(FVector value){
 	if (!value.IsNearlyZero()) {
-		SafeMoveUpdatedComponent(value, UpdatedComponent->GetComponentRotation(), true, Hit);
+		if(bIsActive)
+			SafeMoveUpdatedComponent(value, UpdatedComponent->GetComponentRotation(), true, Hit);
+		
 		if (Hit.IsValidBlockingHit()) {
 			RotateOrtogonalToPlane(Hit);
 		}

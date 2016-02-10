@@ -38,8 +38,10 @@ void ACharacterWithoutGravity::InitializeMovementComponent(){
 	ForwardMovementComponent->SetForwardFactor(500.0f);
 	ForwardMovementComponent->UpdatedComponent = RootComponent;
 	GravityMovementComponent = CreateDefaultSubobject<UGravityMovementComponent>("GravityComponent");
-	GravityMovementComponent->SetForwardFactor(270.0f);
+	GravityMovementComponent->SetForwardFactor(100.0f);
+	GravityMovementComponent->SetForward(ForwardMovementComponent);
 	GravityMovementComponent->UpdatedComponent = RootComponent;
+
 }
 
 void ACharacterWithoutGravity::InitializeForwardTrace(){
@@ -115,12 +117,6 @@ void ACharacterWithoutGravity::BeginPlay(){
 // Called every frame
 void ACharacterWithoutGravity::Tick( float DeltaTime ){
 	Super::Tick( DeltaTime );
-
-	MoveForward(DeltaTime);
-	/*FHitResult hitResult;
-	if (IsHitObstacle(ForwardTrace, 100.0f, hitResult)){
-		RotateOrtogonalToPlane(hitResult);
-	}*/
 }
 
 // Called to bind functionality to input
@@ -144,41 +140,4 @@ void ACharacterWithoutGravity::InitializeCapsule()
 	FName name = FName("Pawn");
 	Capsule->SetCollisionProfileName(name);
 	RootComponent = Capsule;
-}
-
-void ACharacterWithoutGravity::RotateOrtogonalToPlane(FHitResult & OutHit)
-{
-	FVector normalToPlane = OutHit.ImpactNormal;
-	FVector forwardActor = GetActorForwardVector();
-	FVector upActor = GetActorUpVector();
-
-	FVector crossForwardAndUp = UKismetMathLibrary::Cross_VectorVector(forwardActor, upActor);
-	FVector newForward = UKismetMathLibrary::Cross_VectorVector(normalToPlane, crossForwardAndUp);
-	FVector newRight = UKismetMathLibrary::Cross_VectorVector(normalToPlane, newForward);
-	FVector newUp = upActor;
-
-	FRotator newRotation = UKismetMathLibrary::MakeRotationFromAxes(newForward, newRight, newUp);
-
-	SetActorRotation(newRotation);
-}
-
-void ACharacterWithoutGravity::MoveForward(float DeltaTime)
-{
-	FHitResult hitResult;
-	FVector updateMove;
-	updateMove = DownTrace->GetForwardVector();
-	if(!updateMove.IsNearlyZero())
-		GravityMovementComponent->AddInputVector(updateMove);
-}
-
-bool ACharacterWithoutGravity::IsHitObstacle(const UArrowComponent* arm, float armLenght, FHitResult& outResult)
-{
-
-	FVector currentLocation = arm->K2_GetComponentLocation();
-	FRotator currentRotation = arm->K2_GetComponentRotation();
-	FVector forwardVector = UKismetMathLibrary::GetForwardVector(currentRotation);
-	FVector scanArm = currentLocation + forwardVector * armLenght;
-
-	TArray<AActor*> ignore;
-	return UKismetSystemLibrary::LineTraceSingle_NEW(this, currentLocation, scanArm, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, outResult, true);
 }
