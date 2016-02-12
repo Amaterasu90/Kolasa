@@ -6,17 +6,22 @@
 #include "ForwardMovementComponent.h"
 #include "GravityMovementComponent.h"
 
-void UGravityMovementComponent::SetForward(UForwardMovementComponent* forward){
-	forwardMovement = forward;
+void UGravityMovementComponent::SetForward(IBlockable * forward){
+	_forwardMovement = forward;
+}
+
+void UGravityMovementComponent::BeginPlay() {
+	IBlockable::ActivateMove();
 }
 
 void UGravityMovementComponent::Move(FVector value){
-	if (!value.IsNearlyZero()) {
-		SafeMoveUpdatedComponent(value, UpdatedComponent->GetComponentRotation(), true, Hit);
-		if (Hit.IsValidBlockingHit()) {
-			forwardMovement->UnlockMove();
-			RotateOrtogonalToPlane(Hit);
+	if (IBlockable::IsActiveMove())
+		if (!value.IsNearlyZero()) {
+			SafeMoveUpdatedComponent(value, UpdatedComponent->GetComponentRotation(), true, CollisionHit);
 		}
+	if (CollisionHit.IsValidBlockingHit()) {
+		_forwardMovement->ActivateMove();
+		RotateOrtogonalToPlane(CollisionHit);
 	}
 }
 

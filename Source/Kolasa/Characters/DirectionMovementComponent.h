@@ -3,13 +3,14 @@
 #pragma once
 
 #include "GameFramework/PawnMovementComponent.h"
+#include "IBlockable.h"
 #include "DirectionMovementComponent.generated.h"
 
 /**
  * 
  */
 UCLASS(abstract)
-class KOLASA_API UDirectionMovementComponent : public UPawnMovementComponent
+class KOLASA_API UDirectionMovementComponent : public UPawnMovementComponent, public IBlockable
 {
 	GENERATED_BODY()
 public:
@@ -19,7 +20,8 @@ public:
 protected:
 	float ForwardFactor;
 	FVector Direction;
-	FHitResult Hit;
+	FHitResult CollisionHit;
+	FHitResult RayHit;
 	virtual void RotateOrtogonalToPlane(FHitResult & OutHit) PURE_VIRTUAL(UDirectionMovementComponent::RotateOrtogonalToPlane, ;);
 	virtual void Move(FVector value);
 	virtual FVector GetDisplacement(float DeltaTime);

@@ -2,10 +2,10 @@
 class IBlockable
 {
 public:
-	void BlockMove();
-	void UnlockMove();
-	bool IsActive();
+	void ActivateMove();
+	void DeactivateMove();
+	bool IsActiveMove();
 private:
-	bool bIsActive = false;
+	bool bIsActive;
 };
 

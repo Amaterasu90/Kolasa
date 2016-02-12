@@ -14,13 +14,13 @@ class KOLASA_API UForwardMovementComponent : public UDirectionMovementComponent
 	GENERATED_BODY()
 
 public:
+	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
-	void BlockMove();
-	void UnlockMove();
+	void SetDown(IBlockable* down);
 protected:
 	virtual void Move(FVector value) override;
 	virtual void RotateOrtogonalToPlane(FHitResult & OutHit) override;
 	virtual FVector GetDisplacement(float DeltaTime) override;
 private:
-	bool bIsActive;
+	IBlockable* downMovement;
 };

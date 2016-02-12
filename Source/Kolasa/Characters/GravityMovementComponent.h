@@ -15,12 +15,13 @@ class KOLASA_API UGravityMovementComponent : public UDirectionMovementComponent
 	GENERATED_BODY()
 	
 public:
+	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
-	void SetForward(UForwardMovementComponent* forward);
+	void SetForward(IBlockable* forward);
 protected:
 	virtual void Move(FVector value) override;
 	virtual void RotateOrtogonalToPlane(FHitResult & OutHit) override;
 	virtual FVector GetDisplacement(float DeltaTime) override;
 private:
-	UForwardMovementComponent* forwardMovement;
+	IBlockable* _forwardMovement;
 };

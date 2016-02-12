@@ -34,6 +34,11 @@ public:
 	UArrowComponent* DownTrace;
 	UArrowComponent* ForwardTrace;
 
+	UPROPERTY(EditAnywhere)
+	float forwardFactor=500.0f;
+	UPROPERTY(EditAnywhere)
+	float gravityFactor=1000.0f;
+
 	// Sets default values for this pawn's properties
 	ACharacterWithoutGravity();
 

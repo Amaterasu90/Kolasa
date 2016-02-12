@@ -1,14 +1,14 @@
 #include "Kolasa.h"
 #include "IBlockable.h"
 
-void IBlockable::BlockMove() {
-	bIsActive = false;
-}
-
-void IBlockable::UnlockMove() {
+void IBlockable::ActivateMove() {
 	bIsActive = true;
 }
 
-bool IBlockable::IsActive() {
+void IBlockable::DeactivateMove() {
+	bIsActive = false;
+}
+
+bool IBlockable::IsActiveMove() {
 	return bIsActive;
 }

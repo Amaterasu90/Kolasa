@@ -35,13 +35,9 @@ void ACharacterWithoutGravity::InitializeAnimationBlueprint(TCHAR* animBlueprint
 
 void ACharacterWithoutGravity::InitializeMovementComponent(){
 	ForwardMovementComponent = CreateDefaultSubobject<UForwardMovementComponent>("ForwardComponent");
-	ForwardMovementComponent->SetForwardFactor(500.0f);
 	ForwardMovementComponent->UpdatedComponent = RootComponent;
 	GravityMovementComponent = CreateDefaultSubobject<UGravityMovementComponent>("GravityComponent");
-	GravityMovementComponent->SetForwardFactor(100.0f);
-	GravityMovementComponent->SetForward(ForwardMovementComponent);
 	GravityMovementComponent->UpdatedComponent = RootComponent;
-
 }
 
 void ACharacterWithoutGravity::InitializeForwardTrace(){
@@ -112,6 +108,12 @@ void ACharacterWithoutGravity::InitializeCamera()
 // Called when the game starts or when spawned
 void ACharacterWithoutGravity::BeginPlay(){
 	Super::BeginPlay();
+	ForwardMovementComponent->SetForwardFactor(forwardFactor);
+	GravityMovementComponent->SetForwardFactor(gravityFactor);
+	
+	ForwardMovementComponent->SetDown(GravityMovementComponent);
+	GravityMovementComponent->SetForward(ForwardMovementComponent);
+
 }
 
 // Called every frame

@@ -5,22 +5,17 @@
 #include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
 #include "ForwardMovementComponent.h"
 
-void UForwardMovementComponent::BlockMove(){
-	bIsActive = false;
-}
-
-void UForwardMovementComponent::UnlockMove(){
-	bIsActive = true;
+void UForwardMovementComponent::BeginPlay() {
+	Direction = UpdatedComponent->GetForwardVector();
 }
 
 void UForwardMovementComponent::Move(FVector value){
-	if (!value.IsNearlyZero()) {
-		if(bIsActive)
-			SafeMoveUpdatedComponent(value, UpdatedComponent->GetComponentRotation(), true, Hit);
-		
-		if (Hit.IsValidBlockingHit()) {
-			RotateOrtogonalToPlane(Hit);
+	if (IBlockable::IsActiveMove())
+		if (!value.IsNearlyZero()) {
+			SafeMoveUpdatedComponent(value, UpdatedComponent->GetComponentRotation(), true, CollisionHit);
 		}
+	if (CollisionHit.IsValidBlockingHit()) {
+		RotateOrtogonalToPlane(CollisionHit);
 	}
 }
 
@@ -48,6 +43,10 @@ FVector UForwardMovementComponent::GetDisplacement(float DeltaTime) {
 
 void UForwardMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
+
+void UForwardMovementComponent::SetDown(IBlockable* down){
+	downMovement = down;
 }
 
 
