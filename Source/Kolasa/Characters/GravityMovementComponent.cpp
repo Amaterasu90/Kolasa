@@ -19,9 +19,13 @@ void UGravityMovementComponent::Move(FVector value){
 		if (!value.IsNearlyZero()) {
 			SafeMoveUpdatedComponent(value, UpdatedComponent->GetComponentRotation(), true, CollisionHit);
 		}
+
 	if (CollisionHit.IsValidBlockingHit()) {
-		_forwardMovement->ActivateMove();
-		RotateOrtogonalToPlane(CollisionHit);
+		//_forwardMovement->ActivateMove();
+		//RotateOrtogonalToPlane(CollisionHit);
+	}
+	else {
+		//_forwardMovement->DeactivateMove();
 	}
 }
 

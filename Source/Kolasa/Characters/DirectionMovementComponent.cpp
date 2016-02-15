@@ -18,6 +18,18 @@ void UDirectionMovementComponent::SetForwardFactor(float value){
 	this->ForwardFactor = value;
 }
 
+void UDirectionMovementComponent::SetScanRay(RayProvider provider){
+	_provider = provider;
+}
+
+FVector UDirectionMovementComponent::GetRayBegin(){
+	return _provider.GetLocation();
+}
+
+FRotator UDirectionMovementComponent::GetRayRotation(){
+	return _provider.GetRotation();
+}
+
 void UDirectionMovementComponent::Move(FVector value){
 	return;
 }

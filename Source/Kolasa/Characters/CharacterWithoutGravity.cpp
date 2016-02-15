@@ -114,6 +114,11 @@ void ACharacterWithoutGravity::BeginPlay(){
 	ForwardMovementComponent->SetDown(GravityMovementComponent);
 	GravityMovementComponent->SetForward(ForwardMovementComponent);
 
+	RayProvider forward(ForwardTrace);
+	ForwardMovementComponent->SetScanRay(forward);
+
+	RayProvider down(DownTrace);
+	GravityMovementComponent->SetScanRay(down);
 }
 
 // Called every frame

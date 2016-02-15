@@ -4,6 +4,7 @@
 
 #include "GameFramework/PawnMovementComponent.h"
 #include "IBlockable.h"
+#include "RayProvider.h"
 #include "DirectionMovementComponent.generated.h"
 
 /**
@@ -17,6 +18,9 @@ public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 	void SetForwardFactor(float value);
+	void SetScanRay(RayProvider provider);
+	FVector GetRayBegin();
+	FRotator GetRayRotation();
 protected:
 	float ForwardFactor;
 	FVector Direction;
@@ -25,4 +29,6 @@ protected:
 	virtual void RotateOrtogonalToPlane(FHitResult & OutHit) PURE_VIRTUAL(UDirectionMovementComponent::RotateOrtogonalToPlane, ;);
 	virtual void Move(FVector value);
 	virtual FVector GetDisplacement(float DeltaTime);
+private:
+	RayProvider _provider;
 };

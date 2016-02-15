@@ -14,13 +14,20 @@ class KOLASA_API UForwardMovementComponent : public UDirectionMovementComponent
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditAnywhere)
+	float smoothClimbFactor = 0.1f;
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 	void SetDown(IBlockable* down);
+	void SmoothRotateToPlane(FHitResult& InHit);
 protected:
 	virtual void Move(FVector value) override;
-	virtual void RotateOrtogonalToPlane(FHitResult & OutHit) override;
+	virtual void RotateOrtogonalToPlane(FHitResult & InHit) override;
 	virtual FVector GetDisplacement(float DeltaTime) override;
 private:
-	IBlockable* downMovement;
+	FRotator GetOrtogonalToPlane(FHitResult& InHit);
+	IBlockable* _downMovement;
+	bool endSmoothRotation;
+	FRotator newRotation;
+	float counter;
 };
