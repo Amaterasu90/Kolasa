@@ -23,15 +23,12 @@ void UForwardMovementComponent::Move(FVector value){
 	FVector currentLocation = GetRayBegin();
 	FRotator currentRotation = GetRayRotation();
 	FVector forwardVector = UKismetMathLibrary::GetForwardVector(currentRotation);
-	FVector scanArm = currentLocation + forwardVector * 200.0f;
+	FVector scanArm = currentLocation + forwardVector * scanArmLenght;
 
 	TArray<AActor*> ignore;
 	UKismetSystemLibrary::LineTraceSingle_NEW(this, currentLocation, scanArm, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, RayHit, true);
 	
-	//UpdatedComponent->AddRelativeRotation(FRotator(10.0f, 0.0f, 0.0f));
-	/*if(CollisionHit.IsValidBlockingHit())
-		RotateOrtogonalToPlane(CollisionHit);
-	*/SmoothRotateToPlane(RayHit);
+	SmoothRotateToPlane(RayHit);
 }
 
 void UForwardMovementComponent::SmoothRotateToPlane(FHitResult & InHit) {

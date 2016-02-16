@@ -21,11 +21,11 @@ void UGravityMovementComponent::Move(FVector value){
 		}
 
 	if (CollisionHit.IsValidBlockingHit()) {
-		//_forwardMovement->ActivateMove();
-		//RotateOrtogonalToPlane(CollisionHit);
+		_forwardMovement->ActivateMove();
+		RotateOrtogonalToPlane(CollisionHit);
 	}
 	else {
-		//_forwardMovement->DeactivateMove();
+		_forwardMovement->DeactivateMove();
 	}
 }
 

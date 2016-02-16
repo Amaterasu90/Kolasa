@@ -14,8 +14,10 @@ class KOLASA_API UForwardMovementComponent : public UDirectionMovementComponent
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere)
-	float smoothClimbFactor = 0.1f;
+	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float smoothClimbFactor = 0.05f;
+	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "1000.0"))
+	float scanArmLenght = 100.0f;
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 	void SetDown(IBlockable* down);
