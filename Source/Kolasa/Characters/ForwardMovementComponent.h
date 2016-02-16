@@ -27,7 +27,7 @@ protected:
 private:
 	FRotator GetOrtogonalToPlane(FHitResult& InHit);
 	IBlockable* _downMovement;
-	bool endSmoothRotation;
 	FRotator newRotation;
 	float counter;
+	float countingDirection;
 };
