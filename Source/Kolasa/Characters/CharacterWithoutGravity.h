@@ -35,9 +35,9 @@ public:
 	UArrowComponent* ForwardTrace;
 
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "1.0", ClampMax = "10000.0"))
-	float forwardFactor=500.0f;
+	float forwardFactor = 500.0f;
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "1.0", ClampMax = "10000.0"))
-	float gravityFactor=500.0f;
+	float gravityFactor = 500.0f;
 
 	// Sets default values for this pawn's properties
 	ACharacterWithoutGravity();

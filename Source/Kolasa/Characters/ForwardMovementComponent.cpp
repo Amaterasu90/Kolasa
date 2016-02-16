@@ -35,6 +35,7 @@ void UForwardMovementComponent::SmoothRotateToPlane(FHitResult & InHit) {
 	
 	FRotator clampedCurrent = UpdatedComponent->GetComponentRotation();
 	if (InHit.IsValidBlockingHit()) {
+		DeactivateMove();
 		_downMovement->DeactivateMove();
 		newRotation = GetOrtogonalToPlane(InHit);
 		//without this operations exist bug with immiadely set new rotation without smooth move
@@ -58,6 +59,7 @@ void UForwardMovementComponent::SmoothRotateToPlane(FHitResult & InHit) {
 	else
 	{
 		counter = 0.0f;
+		ActivateMove();
 		_downMovement->ActivateMove();
 	}
 }
