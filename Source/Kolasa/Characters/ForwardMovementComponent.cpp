@@ -12,7 +12,7 @@ void UForwardMovementComponent::BeginPlay() {
 	ActivateMove();
 }
 
-void UForwardMovementComponent::Move(FVector value){
+void UForwardMovementComponent::Move(FVector value, float DeltaTime){
 
 	if (IsActiveMove()) {
 		if (!value.IsNearlyZero()) {
@@ -28,31 +28,21 @@ void UForwardMovementComponent::Move(FVector value){
 	TArray<AActor*> ignore;
 	UKismetSystemLibrary::LineTraceSingle_NEW(this, currentLocation, scanArm, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, RayHit, true);
 	
-	SmoothRotateToPlane(RayHit);
+	SmoothRotateToPlane(RayHit,DeltaTime);
 }
 
-void UForwardMovementComponent::SmoothRotateToPlane(FHitResult & InHit) {
+void UForwardMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float DeltaTime) {
 	
 	FRotator clampedCurrent = UpdatedComponent->GetComponentRotation();
 	if (InHit.IsValidBlockingHit()) {
 		DeactivateMove();
 		_downMovement->DeactivateMove();
 		newRotation = GetOrtogonalToPlane(InHit);
-		//without this operations exist bug with immiadely set new rotation without smooth move
-		if (newRotation == FRotator(90.0f, 0.0f, 180.0f))
-			newRotation = FRotator(90.0f, 180.0f, 0.0f);
-		if (newRotation == FRotator(-90.0f, 0.0f, 0.0f))
-			newRotation = FRotator(-90.0f, 180.0f, 180.0f);
-		Direction = newRotation.Vector();
-		Direction.Normalize();
+		countingDirection = FMath::Sign(newRotation.Pitch - clampedCurrent.Pitch)*DeltaTime*smoothClimbFactor;
+		UpdateDirection(newRotation);
 	}
 	
-	countingDirection = FMath::Sign(newRotation.Pitch - clampedCurrent.Pitch)*smoothClimbFactor;
-	if (countingDirection > 0.0f && counter < newRotation.Pitch - clampedCurrent.Pitch) {
-		UpdatedComponent->SetRelativeRotation(FRotator(clampedCurrent.Pitch + counter, newRotation.Yaw, newRotation.Roll));
-		counter += countingDirection;
-	}
-	else if (countingDirection < 0.0f && counter > newRotation.Pitch - clampedCurrent.Pitch) {
+	if (FMath::Abs(counter) < FMath::Abs(newRotation.Pitch - clampedCurrent.Pitch)) {
 		UpdatedComponent->SetRelativeRotation(FRotator(clampedCurrent.Pitch + counter, newRotation.Yaw, newRotation.Roll));
 		counter += countingDirection;
 	}
@@ -62,6 +52,11 @@ void UForwardMovementComponent::SmoothRotateToPlane(FHitResult & InHit) {
 		ActivateMove();
 		_downMovement->ActivateMove();
 	}
+}
+
+void UForwardMovementComponent::UpdateDirection(FRotator rotation) {
+	Direction = rotation.Vector();
+	Direction.Normalize();
 }
 
 void UForwardMovementComponent::RotateOrtogonalToPlane(FHitResult & InHit) {

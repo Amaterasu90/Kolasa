@@ -11,7 +11,7 @@ void UDirectionMovementComponent::TickComponent(float DeltaTime, enum ELevelTick
 	}
 
 	FVector DesiredMovementThisFrame = GetDisplacement(DeltaTime);
-	Move(DesiredMovementThisFrame);
+	Move(DesiredMovementThisFrame,DeltaTime);
 }
 
 void UDirectionMovementComponent::SetForwardFactor(float value){
@@ -30,7 +30,7 @@ FRotator UDirectionMovementComponent::GetRayRotation(){
 	return _provider.GetRotation();
 }
 
-void UDirectionMovementComponent::Move(FVector value){
+void UDirectionMovementComponent::Move(FVector value,float DeltaTime){
 	return;
 }
 

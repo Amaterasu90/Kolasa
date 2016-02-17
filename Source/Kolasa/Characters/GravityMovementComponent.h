@@ -19,7 +19,7 @@ public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 	void SetForward(IBlockable* forward);
 protected:
-	virtual void Move(FVector value) override;
+	virtual void Move(FVector value, float DeltaTime) override;
 	virtual void RotateOrtogonalToPlane(FHitResult & OutHit) override;
 	virtual FVector GetDisplacement(float DeltaTime) override;
 private:

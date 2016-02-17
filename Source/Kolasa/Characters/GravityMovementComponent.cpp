@@ -14,7 +14,7 @@ void UGravityMovementComponent::BeginPlay() {
 	IBlockable::ActivateMove();
 }
 
-void UGravityMovementComponent::Move(FVector value){
+void UGravityMovementComponent::Move(FVector value, float DeltaTime){
 	if (IBlockable::IsActiveMove())
 		if (!value.IsNearlyZero()) {
 			SafeMoveUpdatedComponent(value, UpdatedComponent->GetComponentRotation(), true, CollisionHit);

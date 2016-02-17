@@ -27,7 +27,7 @@ protected:
 	FHitResult CollisionHit;
 	FHitResult RayHit;
 	virtual void RotateOrtogonalToPlane(FHitResult & OutHit) PURE_VIRTUAL(UDirectionMovementComponent::RotateOrtogonalToPlane, ;);
-	virtual void Move(FVector value);
+	virtual void Move(FVector value, float DeltaTime);
 	virtual FVector GetDisplacement(float DeltaTime);
 private:
 	RayProvider _provider;
