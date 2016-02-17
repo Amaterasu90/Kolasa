@@ -5,6 +5,7 @@
 #include "GameFramework/Pawn.h"
 #include "GravityMovementComponent.h"
 #include "ForwardMovementComponent.h"
+#include "RightMovementComponent.h"
 #include "CharacterWithoutGravity.generated.h"
 
 UCLASS()
@@ -31,13 +32,20 @@ public:
 	UPROPERTY(EditAnywhere)
 	UForwardMovementComponent* ForwardMovementComponent;
 
+	UPROPERTY(EditDefaultsOnly)
+	URightMovementComponent* RightMovementComponent;
+
 	UArrowComponent* DownTrace;
 	UArrowComponent* ForwardTrace;
+	UArrowComponent* RightTrace;
+	UArrowComponent* LeftTrace;
 
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "1.0", ClampMax = "10000.0"))
 	float forwardFactor = 500.0f;
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "1.0", ClampMax = "10000.0"))
 	float gravityFactor = 500.0f;
+	UPROPERTY(EditAnywhere, meta = (ClampMin = "1.0", ClampMax = "10000.0"))
+	float rightFactor = 500.0f;
 
 	// Sets default values for this pawn's properties
 	ACharacterWithoutGravity();
@@ -65,10 +73,13 @@ private:
 	void InitializeMovementComponent();
 	void InitializeForwardTrace();
 	void InitializeDownTrace();
+	void InitializeRightTrace();
+	void InitializeLeftTrace();
 
 	void EventMoveRight(float AxisValue);
-	void EventTurn(float AxisValue);
-	void EventLookUp(float AxisValue);
 	
 	FRotator GetYawRotator();
+
+protected:
+	const FVector DefaultTraceLocation = FVector(0.0f, 0.0f, -75.0f);
 };

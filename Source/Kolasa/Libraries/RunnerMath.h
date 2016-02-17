@@ -9,4 +9,5 @@ class KOLASA_API RunnerMath
 {
 public:
 	static FVector GetCleared(FVector vector, float tolerance);
+	static FVector GetUnitVector(FVector vector);
 };

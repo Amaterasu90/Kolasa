@@ -41,16 +41,17 @@ void UForwardMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float De
 		countingDirection = FMath::Sign(newRotation.Pitch - clampedCurrent.Pitch)*DeltaTime*smoothClimbFactor;
 		UpdateDirection(newRotation);
 	}
-	
-	if (FMath::Abs(counter) < FMath::Abs(newRotation.Pitch - clampedCurrent.Pitch)) {
-		UpdatedComponent->SetRelativeRotation(FRotator(clampedCurrent.Pitch + counter, newRotation.Yaw, newRotation.Roll));
-		counter += countingDirection;
-	}
-	else
-	{
-		counter = 0.0f;
-		ActivateMove();
-		_downMovement->ActivateMove();
+	if (newRotation != FRotator::ZeroRotator) {
+		if (FMath::Abs(counter) < FMath::Abs(newRotation.Pitch - clampedCurrent.Pitch)) {
+			UpdatedComponent->SetRelativeRotation(FRotator(clampedCurrent.Pitch + counter, newRotation.Yaw, newRotation.Roll));
+			counter += countingDirection;
+		}
+		else
+		{
+			counter = 0.0f;
+			ActivateMove();
+			_downMovement->ActivateMove();
+		}
 	}
 }
 

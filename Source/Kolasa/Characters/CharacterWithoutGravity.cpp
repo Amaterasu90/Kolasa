@@ -38,19 +38,35 @@ void ACharacterWithoutGravity::InitializeMovementComponent(){
 	ForwardMovementComponent->UpdatedComponent = RootComponent;
 	GravityMovementComponent = CreateDefaultSubobject<UGravityMovementComponent>("GravityComponent");
 	GravityMovementComponent->UpdatedComponent = RootComponent;
+	RightMovementComponent = CreateDefaultSubobject<URightMovementComponent>("RightComponent");
+	RightMovementComponent->UpdatedComponent = RootComponent;
 }
 
 void ACharacterWithoutGravity::InitializeForwardTrace(){
 	ForwardTrace = CreateDefaultSubobject<UArrowComponent>("ForwardTrace");
-	ForwardTrace->SetRelativeLocation(FVector(0.0f, 0.0f, -75.0f));
+	ForwardTrace->SetRelativeLocation(ACharacterWithoutGravity::DefaultTraceLocation);
 	ForwardTrace->AttachTo(RootComponent);
 }
 
 void ACharacterWithoutGravity::InitializeDownTrace(){
 	DownTrace = CreateDefaultSubobject<UArrowComponent>("DownTrace");
-	DownTrace->SetRelativeLocation(FVector(0.0f, 0.0f, -75.0f));
+	DownTrace->SetRelativeLocation(ACharacterWithoutGravity::DefaultTraceLocation);
 	DownTrace->AddRelativeRotation(FRotator(-90.0f, 0.0f, 0.0f));
 	DownTrace->AttachTo(RootComponent);
+}
+
+void ACharacterWithoutGravity::InitializeRightTrace() {
+	RightTrace = CreateDefaultSubobject<UArrowComponent>("RightTrace");
+	RightTrace->SetRelativeLocation(ACharacterWithoutGravity::DefaultTraceLocation);
+	RightTrace->AddRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));
+	RightTrace->AttachTo(RootComponent);
+}
+
+void ACharacterWithoutGravity::InitializeLeftTrace() {
+	LeftTrace = CreateDefaultSubobject<UArrowComponent>("LeftTrace");
+	LeftTrace->SetRelativeLocation(ACharacterWithoutGravity::DefaultTraceLocation);
+	LeftTrace->AddRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+	LeftTrace->AttachTo(RootComponent);
 }
 
 FRotator ACharacterWithoutGravity::GetYawRotator() {
@@ -62,7 +78,7 @@ void ACharacterWithoutGravity::EventMoveRight(float AxisValue){
 	FRotator UpdateRotator = GetYawRotator();
 	FVector RightVector = GetActorRightVector();
 	if (AxisValue != 0.0f)
-		GravityMovementComponent->AddInputVector(RightVector * AxisValue * 100.0f);
+		RightMovementComponent->AddInputVector(RightVector * AxisValue * 100.0f);
 }
 
 ACharacterWithoutGravity::ACharacterWithoutGravity(TCHAR * skeletalMeshPath, TCHAR * animBlueprintPath)
@@ -76,6 +92,8 @@ ACharacterWithoutGravity::ACharacterWithoutGravity(TCHAR * skeletalMeshPath, TCH
 	InitializeAnimationBlueprint(animBlueprintPath);
 	InitializeDownTrace();
 	InitializeForwardTrace();
+	InitializeRightTrace();
+	InitializeLeftTrace();
 }
 
 void ACharacterWithoutGravity::InitializeStaticMesh(TCHAR* skeletalMeshPath) {
@@ -90,8 +108,7 @@ void ACharacterWithoutGravity::InitializeStaticMesh(TCHAR* skeletalMeshPath) {
 	Mesh->AddRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 }
 
-void ACharacterWithoutGravity::InitializeSpringArm()
-{
+void ACharacterWithoutGravity::InitializeSpringArm(){
 	BoomCamera = CreateDefaultSubobject<USpringArmComponent>("BoomCamera");
 	BoomCamera->SetRelativeLocation(FVector(0.0f, 0.0f, 40.0f));
 	USpringArmComponent * springArm = Cast<USpringArmComponent>(BoomCamera);
@@ -110,15 +127,20 @@ void ACharacterWithoutGravity::BeginPlay(){
 	Super::BeginPlay();
 	ForwardMovementComponent->SetForwardFactor(forwardFactor);
 	GravityMovementComponent->SetForwardFactor(gravityFactor);
+	RightMovementComponent->SetForwardFactor(rightFactor);
 	
 	ForwardMovementComponent->SetDown(GravityMovementComponent);
 	GravityMovementComponent->SetForward(ForwardMovementComponent);
+	RightMovementComponent->SetDown(GravityMovementComponent);
 
 	RayProvider forward(ForwardTrace);
 	ForwardMovementComponent->SetScanRay(forward);
 
 	RayProvider down(DownTrace);
 	GravityMovementComponent->SetScanRay(down);
+
+	RayProvider right(RightTrace);
+	RightMovementComponent->SetScanRay(right);
 }
 
 // Called every frame
