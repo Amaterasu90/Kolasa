@@ -15,7 +15,7 @@ class KOLASA_API UForwardMovementComponent : public UDirectionMovementComponent
 
 public:
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "10.0"))
-	float smoothClimbFactor = 0.05f;
+	float smoothClimbFactor = 1.0f;
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "1000.0"))
 	float scanArmLenght = 100.0f;
 	virtual void BeginPlay() override;
