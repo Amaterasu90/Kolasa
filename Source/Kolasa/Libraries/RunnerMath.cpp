@@ -11,21 +11,18 @@ FVector RunnerMath::GetCleared(FVector vector, float tolerance) {
 	return result;
 }
 
-FVector RunnerMath::GetUnitVector(FVector value) {
-	FVector result;
-	if (value.X != 0.0f)
-		result.X = value.X / FMath::Abs(value.X);
-	else
-		result.X = 0.0f;
-	
-	if (value.Y != 0.0f)
-		result.Y = value.Y / FMath::Abs(value.Y);
-	else
-		result.Y = 0.0f;
-	
-	if (value.Z != 0.0f)
-		result.Z = value.Z / FMath::Abs(value.Z);
-	else
-		result.Z = 0.0f;
-	return result;
+FRotator RunnerMath::Align(FRotator value) {
+	float Pitch = value.Pitch;
+	Pitch = Pitch * FMath::Pow(10.0f, 2.0f);
+	Pitch = FMath::FloorToFloat(Pitch) * FMath::Pow(10.0f, -2.0f);
+
+	float Yaw = value.Yaw;
+	Yaw = Yaw * FMath::Pow(10.0f, 2.0f);
+	Yaw = FMath::FloorToFloat(Yaw) * FMath::Pow(10.0f, -2.0f);
+
+	float Roll = value.Roll;
+	Roll = Roll * FMath::Pow(10.0f, 2.0f);
+	Roll = FMath::FloorToFloat(Roll) * FMath::Pow(10.0f, -2.0f);
+
+	return FRotator(Pitch, Yaw, Roll);
 }

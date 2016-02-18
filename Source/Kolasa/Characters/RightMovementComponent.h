@@ -31,9 +31,11 @@ protected:
 	virtual FVector GetDisplacement(float DeltaTime) override;
 	FHitResult GetRayHit();
 	FRotator GetOrtogonalToPlane(FHitResult& InHit);
-	FRotator* GetNewRotation(FHitResult& InHit);
 private:
 	IBlockable* _downMovement;
+	float counter;
+	float countingDirection;
+	FRotator newRotation;
 	float CalcEndIteration(float oldRoll, float newRoll);
 	float CalcIterationStep(float oldRoll, float newRoll, float deltaTime);
 };

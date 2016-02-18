@@ -9,6 +9,7 @@
 void URightMovementComponent::BeginPlay() {
 	Direction = FVector::ZeroVector;
 	ActivateMove();
+	counter = 0.0f;
 }
 
 void URightMovementComponent::ActivateMove() {
@@ -51,32 +52,26 @@ FHitResult URightMovementComponent::GetRayHit() {
 	return result;
 }
 
-FRotator* URightMovementComponent::GetNewRotation(FHitResult& InHit) {
-	static FRotator newRotation;
+void URightMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float DeltaTime) {
+
+	FRotator clampedCurrent = UpdatedComponent->GetComponentRotation();
+
 	if (InHit.IsValidBlockingHit()) {
 		DeactivateMove();
 		_downMovement->DeactivateMove();
 		newRotation = GetOrtogonalToPlane(InHit);
 	}
 
-	return &newRotation;
-}
-
-void URightMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float DeltaTime) {
-
-	FRotator clampedCurrent = UpdatedComponent->GetComponentRotation();
-	FRotator nRotation = *GetNewRotation(InHit);
-
-	static float counter;
-	static float countingDirection;
-
-	float end = CalcEndIteration(clampedCurrent.Roll, nRotation.Roll);
-	if (FMath::Abs(counter) < end && nRotation != FRotator::ZeroRotator) {
-		UpdatedComponent->SetRelativeRotation(FRotator(nRotation.Pitch, nRotation.Yaw, clampedCurrent.Roll + counter));
-		counter += CalcIterationStep(clampedCurrent.Roll, nRotation.Roll, DeltaTime);;
+	float end = CalcEndIteration(clampedCurrent.Roll, newRotation.Roll);
+	if (FMath::Abs(counter) < end && newRotation != FRotator::ZeroRotator) {
+		UpdatedComponent->SetRelativeRotation(FRotator(newRotation.Pitch, newRotation.Yaw, clampedCurrent.Roll + counter));
+		counter += CalcIterationStep(clampedCurrent.Roll, newRotation.Roll, DeltaTime);;
 	}
 	else
 	{
+		if (newRotation != FRotator::ZeroRotator) {
+			UpdatedComponent->SetRelativeRotation(newRotation);
+		}
 		counter = 0.0f;
 		ActivateMove();
 		_downMovement->ActivateMove();
@@ -110,7 +105,6 @@ void URightMovementComponent::UpdateDirection(FRotator rotation) {
 
 void URightMovementComponent::RotateOrtogonalToPlane(FHitResult & InHit) {
 	FRotator newRotation = GetOrtogonalToPlane(InHit);		
-	//UpdateDirection(newRotation);
 	UpdatedComponent->SetRelativeRotation(newRotation);
 }
 
