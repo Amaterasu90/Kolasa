@@ -9,7 +9,8 @@
 void UForwardMovementComponent::BeginPlay() {
 	Direction = UpdatedComponent->GetForwardVector();
 	counter = 0.0f;
-	ActivateMove();
+	//ActivateMove();
+	DeactivateMove();
 }
 
 void UForwardMovementComponent::Move(FVector value, float DeltaTime){

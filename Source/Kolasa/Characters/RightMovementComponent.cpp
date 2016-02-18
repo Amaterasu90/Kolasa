@@ -29,6 +29,8 @@ void URightMovementComponent::Move(FVector value, float DeltaTime) {
 	TArray<AActor*> ignore;
 	UKismetSystemLibrary::LineTraceSingle_NEW(this, currentLocation, scanArm, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, RayHit, true);
 
+	//if (RayHit.IsValidBlockingHit())
+		//RotateOrtogonalToPlane(RayHit);
 	SmoothRotateToPlane(RayHit, DeltaTime);
 }
 
@@ -39,19 +41,29 @@ void URightMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float Delt
 		DeactivateMove();
 		_downMovement->DeactivateMove();
 		newRotation = GetOrtogonalToPlane(InHit);
-		countingDirection = FMath::Sign(newRotation.Roll - clampedCurrent.Roll)*DeltaTime*smoothClimbFactor;
-		UpdateDirection(newRotation);
 	}
 
-	if (FMath::Abs(counter) < FMath::Abs(newRotation.Roll - clampedCurrent.Roll)) {
-		UpdatedComponent->SetRelativeRotation(FRotator(newRotation.Pitch, newRotation.Yaw, clampedCurrent.Roll + counter));
-		counter += countingDirection;
-	}
-	else
-	{
-		counter = 0.0f;
-		ActivateMove();
-		_downMovement->ActivateMove();
+	if (newRotation != FRotator::ZeroRotator) {
+		float end;
+		if (newRotation.Roll > 0.0f && clampedCurrent.Roll < 0.0f) {
+			countingDirection = FMath::Sign(-FMath::Abs(clampedCurrent.Roll+newRotation.Roll))*DeltaTime*smoothClimbFactor;
+			end = FMath::Abs(-FMath::Abs(clampedCurrent.Roll + newRotation.Roll));
+		}
+		else {
+			countingDirection = FMath::Sign(newRotation.Roll - clampedCurrent.Roll)*DeltaTime*smoothClimbFactor;
+			end = FMath::Abs(newRotation.Roll - clampedCurrent.Roll);
+		}
+
+		if (FMath::Abs(counter) < end) {
+			UpdatedComponent->SetRelativeRotation(FRotator(newRotation.Pitch, newRotation.Yaw, clampedCurrent.Roll + counter));
+			counter += countingDirection;
+		}
+		else
+		{
+			counter = 0.0f;
+			ActivateMove();
+			_downMovement->ActivateMove();
+		}
 	}
 }
 
@@ -61,8 +73,8 @@ void URightMovementComponent::UpdateDirection(FRotator rotation) {
 }
 
 void URightMovementComponent::RotateOrtogonalToPlane(FHitResult & InHit) {
-	FRotator newRotation = GetOrtogonalToPlane(InHit);
-	UpdateDirection(newRotation);
+	FRotator newRotation = GetOrtogonalToPlane(InHit);		
+	//UpdateDirection(newRotation);
 	UpdatedComponent->SetRelativeRotation(newRotation);
 }
 
@@ -73,17 +85,14 @@ FVector URightMovementComponent::GetDisplacement(float DeltaTime) {
 
 FRotator URightMovementComponent::GetOrtogonalToPlane(FHitResult & InHit) {
 	FVector normalToPlane = RunnerMath::GetCleared(InHit.ImpactNormal, 0.01f);
-	normalToPlane = RunnerMath::GetUnitVector(normalToPlane);
 	FVector rightActor = RunnerMath::GetCleared(UpdatedComponent->GetRightVector(), 0.01f);
-	rightActor = RunnerMath::GetUnitVector(rightActor);
 	FVector upActor = RunnerMath::GetCleared(UpdatedComponent->GetUpVector(), 0.01f);
-	upActor = RunnerMath::GetUnitVector(upActor);
-
+	
 	FVector crossRightAndUp = RunnerMath::GetCleared(UKismetMathLibrary::Cross_VectorVector(rightActor, upActor), 0.01f);
 	FVector newRight = RunnerMath::GetCleared(UKismetMathLibrary::Cross_VectorVector(normalToPlane, crossRightAndUp), 0.01f);
 	FVector newForward = crossRightAndUp;
 	FVector newUp = RunnerMath::GetCleared(normalToPlane, 0.01f);
-	
+
 	return UKismetMathLibrary::MakeRotationFromAxes(newForward, newRight, newUp);
 }
 
