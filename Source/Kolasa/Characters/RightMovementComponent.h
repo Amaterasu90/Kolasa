@@ -39,6 +39,6 @@ private:
 	FRotator newRotation;
 	float counter;
 	float countingDirection;
-	
-	
+	float CalcEndIteration(float oldRoll, float newRoll);
+	float CalcIterationStep(float oldRoll, float newRoll, float deltaTime);
 };

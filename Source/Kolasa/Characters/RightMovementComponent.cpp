@@ -15,8 +15,12 @@ void URightMovementComponent::BeginPlay() {
 void URightMovementComponent::Move(FVector value, float DeltaTime) {
 
 	if (IsActiveMove()) {
-		FVector DesiredMovementThisFrame = ConsumeInputVector().ClampMaxSize(1.0f)* ForwardFactor * DeltaTime + value;
+		FVector DesiredMovementThisFrame = ConsumeInputVector().GetClampedToMaxSize(1.0f)* ForwardFactor * DeltaTime + value;
 		if (!DesiredMovementThisFrame.IsNearlyZero()) {
+			SafeMoveUpdatedComponent(DesiredMovementThisFrame, UpdatedComponent->GetComponentRotation(), true, CollisionHit);
+		}
+		else if(DesiredMovementThisFrame == FVector::ZeroVector)
+		{
 			SafeMoveUpdatedComponent(DesiredMovementThisFrame, UpdatedComponent->GetComponentRotation(), true, CollisionHit);
 		}
 	}
@@ -44,19 +48,12 @@ void URightMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float Delt
 	}
 
 	if (newRotation != FRotator::ZeroRotator) {
-		float end;
-		if (newRotation.Roll > 0.0f && clampedCurrent.Roll < 0.0f) {
-			countingDirection = FMath::Sign(-FMath::Abs(clampedCurrent.Roll+newRotation.Roll))*DeltaTime*smoothClimbFactor;
-			end = FMath::Abs(-FMath::Abs(clampedCurrent.Roll + newRotation.Roll));
-		}
-		else {
-			countingDirection = FMath::Sign(newRotation.Roll - clampedCurrent.Roll)*DeltaTime*smoothClimbFactor;
-			end = FMath::Abs(newRotation.Roll - clampedCurrent.Roll);
-		}
+		float end = CalcEndIteration(clampedCurrent.Roll, newRotation.Roll);
+		float iterationStep = CalcIterationStep(clampedCurrent.Roll, newRotation.Roll, DeltaTime);
 
 		if (FMath::Abs(counter) < end) {
 			UpdatedComponent->SetRelativeRotation(FRotator(newRotation.Pitch, newRotation.Yaw, clampedCurrent.Roll + counter));
-			counter += countingDirection;
+			counter += iterationStep;
 		}
 		else
 		{
@@ -65,6 +62,26 @@ void URightMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float Delt
 			_downMovement->ActivateMove();
 		}
 	}
+}
+
+float URightMovementComponent::CalcIterationStep(float oldRoll, float newRoll, float deltaTime) {
+	if (newRoll > 0.0f && oldRoll < 0.0f) {
+		return FMath::Sign(-FMath::Abs(oldRoll + newRoll))*deltaTime*smoothClimbFactor;
+	}
+	else {
+		return FMath::Sign(newRoll - oldRoll)*deltaTime*smoothClimbFactor;
+	}
+	return 0.0f;
+}
+
+float URightMovementComponent::CalcEndIteration(float oldRoll, float newRoll){
+	if (newRoll > 0.0f && oldRoll < 0.0f) {
+		return FMath::Abs(-FMath::Abs(oldRoll + newRoll));
+	}
+	else {
+		return FMath::Abs(newRoll - oldRoll);
+	}
+	return 0.0f;
 }
 
 void URightMovementComponent::UpdateDirection(FRotator rotation) {

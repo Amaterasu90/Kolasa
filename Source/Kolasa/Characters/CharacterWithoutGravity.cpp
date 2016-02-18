@@ -3,6 +3,7 @@
 #include "Kolasa.h"
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 #include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
+#include "Libraries/RunnerMath.h"
 #include "DirectionMovementComponent.h"
 #include "CharacterWithoutGravity.h"
 #include "GravityMovementComponent.h"
@@ -77,8 +78,8 @@ FRotator ACharacterWithoutGravity::GetYawRotator() {
 void ACharacterWithoutGravity::EventMoveRight(float AxisValue){
 	FRotator UpdateRotator = GetYawRotator();
 	FVector RightVector = GetActorRightVector();
-	if (AxisValue != 0.0f)
-		RightMovementComponent->AddInputVector(RightVector * AxisValue * 100.0f);
+	RightVector = RunnerMath::GetCleared(RightVector, 0.01f);
+	RightMovementComponent->AddInputVector(RightVector * AxisValue * 100.0f);
 }
 
 ACharacterWithoutGravity::ACharacterWithoutGravity(TCHAR * skeletalMeshPath, TCHAR * animBlueprintPath)
