@@ -113,7 +113,7 @@ void ACharacterWithoutGravity::InitializeSpringArm(){
 	BoomCamera = CreateDefaultSubobject<USpringArmComponent>("BoomCamera");
 	BoomCamera->SetRelativeLocation(FVector(0.0f, 0.0f, 40.0f));
 	USpringArmComponent * springArm = Cast<USpringArmComponent>(BoomCamera);
-	springArm->bUsePawnControlRotation = true;
+	springArm->bUsePawnControlRotation = false;
 	BoomCamera->AttachTo(RootComponent);
 }
 

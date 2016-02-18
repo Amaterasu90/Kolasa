@@ -14,22 +14,15 @@ void UForwardMovementComponent::BeginPlay() {
 }
 
 void UForwardMovementComponent::Move(FVector value, float DeltaTime){
-
 	if (IsActiveMove()) {
 		if (!value.IsNearlyZero()) {
 			SafeMoveUpdatedComponent(value, UpdatedComponent->GetComponentRotation(), true, CollisionHit);
 		}
 	}
 
-	FVector currentLocation = GetRayBegin();
-	FRotator currentRotation = GetRayRotation();
-	FVector forwardVector = UKismetMathLibrary::GetForwardVector(currentRotation);
-	FVector scanArm = currentLocation + forwardVector * scanArmLenght;
-
-	TArray<AActor*> ignore;
-	UKismetSystemLibrary::LineTraceSingle_NEW(this, currentLocation, scanArm, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, RayHit, true);
+	FHitResult hit = GetRayHit();
 	
-	SmoothRotateToPlane(RayHit,DeltaTime);
+	SmoothRotateToPlane(hit,DeltaTime);
 }
 
 void UForwardMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float DeltaTime) {
@@ -42,17 +35,16 @@ void UForwardMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float De
 		countingDirection = FMath::Sign(newRotation.Pitch - clampedCurrent.Pitch)*DeltaTime*smoothClimbFactor;
 		UpdateDirection(newRotation);
 	}
-	if (newRotation != FRotator::ZeroRotator) {
-		if (FMath::Abs(counter) < FMath::Abs(newRotation.Pitch - clampedCurrent.Pitch)) {
-			UpdatedComponent->SetRelativeRotation(FRotator(clampedCurrent.Pitch + counter, newRotation.Yaw, newRotation.Roll));
-			counter += countingDirection;
-		}
-		else
-		{
-			counter = 0.0f;
-			ActivateMove();
-			_downMovement->ActivateMove();
-		}
+	
+	if (FMath::Abs(counter) < FMath::Abs(newRotation.Pitch - clampedCurrent.Pitch) && newRotation != FRotator::ZeroRotator) {
+		UpdatedComponent->SetRelativeRotation(FRotator(clampedCurrent.Pitch + counter, newRotation.Yaw, newRotation.Roll));
+		counter += countingDirection;
+	}
+	else if (counter != 0.0f) {
+		UpdatedComponent->SetRelativeRotation(newRotation);
+		counter = 0.0f;
+		ActivateMove();
+		_downMovement->ActivateMove();
 	}
 }
 

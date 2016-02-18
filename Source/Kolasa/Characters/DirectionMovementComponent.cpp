@@ -2,6 +2,8 @@
 
 #include "Kolasa.h"
 #include "DirectionMovementComponent.h"
+#include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
+#include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
 
 void UDirectionMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -12,6 +14,19 @@ void UDirectionMovementComponent::TickComponent(float DeltaTime, enum ELevelTick
 
 	FVector DesiredMovementThisFrame = GetDisplacement(DeltaTime);
 	Move(DesiredMovementThisFrame,DeltaTime);
+}
+
+FHitResult UDirectionMovementComponent::GetRayHit() {
+	FVector currentLocation = GetRayBegin();
+	FRotator currentRotation = GetRayRotation();
+	FVector forwardVector = UKismetMathLibrary::GetForwardVector(currentRotation);
+	FVector scanArm = currentLocation + forwardVector * scanArmLenght;
+
+	TArray<AActor*> ignore;
+	FHitResult result;
+	UKismetSystemLibrary::LineTraceSingle_NEW(this, currentLocation, scanArm, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, result, true);
+
+	return result;
 }
 
 void UDirectionMovementComponent::SetForwardFactor(float value){

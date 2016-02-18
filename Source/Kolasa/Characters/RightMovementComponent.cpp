@@ -39,19 +39,6 @@ void URightMovementComponent::Move(FVector value, float DeltaTime) {
 	SmoothRotateToPlane(hit, DeltaTime);
 }
 
-FHitResult URightMovementComponent::GetRayHit() {
-	FVector currentLocation = GetRayBegin();
-	FRotator currentRotation = GetRayRotation();
-	FVector forwardVector = UKismetMathLibrary::GetForwardVector(currentRotation);
-	FVector scanArm = currentLocation + forwardVector * scanArmLenght;
-
-	TArray<AActor*> ignore;
-	FHitResult result;
-	UKismetSystemLibrary::LineTraceSingle_NEW(this, currentLocation, scanArm, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, result, true);
-
-	return result;
-}
-
 void URightMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float DeltaTime) {
 
 	FRotator clampedCurrent = UpdatedComponent->GetComponentRotation();
@@ -67,11 +54,8 @@ void URightMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float Delt
 		UpdatedComponent->SetRelativeRotation(FRotator(newRotation.Pitch, newRotation.Yaw, clampedCurrent.Roll + counter));
 		counter += CalcIterationStep(clampedCurrent.Roll, newRotation.Roll, DeltaTime);;
 	}
-	else
-	{
-		if (newRotation != FRotator::ZeroRotator) {
-			UpdatedComponent->SetRelativeRotation(newRotation);
-		}
+	else if (counter != 0.0f) {
+		UpdatedComponent->SetRelativeRotation(newRotation);
 		counter = 0.0f;
 		ActivateMove();
 		_downMovement->ActivateMove();
