@@ -23,22 +23,17 @@ public:
 	void SetDown(IBlockable* down);
 	void SmoothRotateToPlane(FHitResult& InHit, float DeltaTime);
 	void UpdateDirection(FRotator rotation);
-	UPROPERTY(EditAnywhere)
-	FVector forward;
-	UPROPERTY(EditAnywhere)
-	FVector right;
-	UPROPERTY(EditAnywhere)
-	FVector up;
+	virtual void ActivateMove() override;
+	virtual void DeactivateMove() override;
 protected:
 	virtual void Move(FVector value, float DeltaTime) override;
 	virtual void RotateOrtogonalToPlane(FHitResult & InHit) override;
 	virtual FVector GetDisplacement(float DeltaTime) override;
-private:
+	FHitResult GetRayHit();
 	FRotator GetOrtogonalToPlane(FHitResult& InHit);
+	FRotator* GetNewRotation(FHitResult& InHit);
+private:
 	IBlockable* _downMovement;
-	FRotator newRotation;
-	float counter;
-	float countingDirection;
 	float CalcEndIteration(float oldRoll, float newRoll);
 	float CalcIterationStep(float oldRoll, float newRoll, float deltaTime);
 };

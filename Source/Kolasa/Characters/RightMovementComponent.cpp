@@ -8,8 +8,21 @@
 
 void URightMovementComponent::BeginPlay() {
 	Direction = FVector::ZeroVector;
-	counter = 0.0f;
 	ActivateMove();
+}
+
+void URightMovementComponent::ActivateMove() {
+	if (!IBlockable::IsActiveMove()) {
+		IBlockable::ActivateMove();
+		UE_LOG(ER_Log, Display, TEXT("Activate RightMovementComponent"));
+	}
+}
+
+void URightMovementComponent::DeactivateMove() {
+	if (IBlockable::IsActiveMove()) {
+		IBlockable::DeactivateMove();
+		UE_LOG(ER_Log, Display, TEXT("Deactivate RightMovementComponent"));
+	}
 }
 
 void URightMovementComponent::Move(FVector value, float DeltaTime) {
@@ -19,48 +32,54 @@ void URightMovementComponent::Move(FVector value, float DeltaTime) {
 		if (!DesiredMovementThisFrame.IsNearlyZero()) {
 			SafeMoveUpdatedComponent(DesiredMovementThisFrame, UpdatedComponent->GetComponentRotation(), true, CollisionHit);
 		}
-		else if(DesiredMovementThisFrame == FVector::ZeroVector)
-		{
-			SafeMoveUpdatedComponent(DesiredMovementThisFrame, UpdatedComponent->GetComponentRotation(), true, CollisionHit);
-		}
 	}
 
+	FHitResult hit = GetRayHit();
+	SmoothRotateToPlane(hit, DeltaTime);
+}
+
+FHitResult URightMovementComponent::GetRayHit() {
 	FVector currentLocation = GetRayBegin();
 	FRotator currentRotation = GetRayRotation();
 	FVector forwardVector = UKismetMathLibrary::GetForwardVector(currentRotation);
 	FVector scanArm = currentLocation + forwardVector * scanArmLenght;
 
 	TArray<AActor*> ignore;
-	UKismetSystemLibrary::LineTraceSingle_NEW(this, currentLocation, scanArm, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, RayHit, true);
+	FHitResult result;
+	UKismetSystemLibrary::LineTraceSingle_NEW(this, currentLocation, scanArm, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, result, true);
 
-	//if (RayHit.IsValidBlockingHit())
-		//RotateOrtogonalToPlane(RayHit);
-	SmoothRotateToPlane(RayHit, DeltaTime);
+	return result;
 }
 
-void URightMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float DeltaTime) {
-
-	FRotator clampedCurrent = UpdatedComponent->GetComponentRotation();
+FRotator* URightMovementComponent::GetNewRotation(FHitResult& InHit) {
+	static FRotator newRotation;
 	if (InHit.IsValidBlockingHit()) {
 		DeactivateMove();
 		_downMovement->DeactivateMove();
 		newRotation = GetOrtogonalToPlane(InHit);
 	}
 
-	if (newRotation != FRotator::ZeroRotator) {
-		float end = CalcEndIteration(clampedCurrent.Roll, newRotation.Roll);
-		float iterationStep = CalcIterationStep(clampedCurrent.Roll, newRotation.Roll, DeltaTime);
+	return &newRotation;
+}
 
-		if (FMath::Abs(counter) < end) {
-			UpdatedComponent->SetRelativeRotation(FRotator(newRotation.Pitch, newRotation.Yaw, clampedCurrent.Roll + counter));
-			counter += iterationStep;
-		}
-		else
-		{
-			counter = 0.0f;
-			ActivateMove();
-			_downMovement->ActivateMove();
-		}
+void URightMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float DeltaTime) {
+
+	FRotator clampedCurrent = UpdatedComponent->GetComponentRotation();
+	FRotator nRotation = *GetNewRotation(InHit);
+
+	static float counter;
+	static float countingDirection;
+
+	float end = CalcEndIteration(clampedCurrent.Roll, nRotation.Roll);
+	if (FMath::Abs(counter) < end && nRotation != FRotator::ZeroRotator) {
+		UpdatedComponent->SetRelativeRotation(FRotator(nRotation.Pitch, nRotation.Yaw, clampedCurrent.Roll + counter));
+		counter += CalcIterationStep(clampedCurrent.Roll, nRotation.Roll, DeltaTime);;
+	}
+	else
+	{
+		counter = 0.0f;
+		ActivateMove();
+		_downMovement->ActivateMove();
 	}
 }
 

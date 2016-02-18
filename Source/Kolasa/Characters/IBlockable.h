@@ -1,9 +1,12 @@
 #pragma once
+
+
+
 class IBlockable
 {
 public:
-	void ActivateMove();
-	void DeactivateMove();
+	virtual void ActivateMove();
+	virtual void DeactivateMove();
 	bool IsActiveMove();
 private:
 	bool bIsActive;

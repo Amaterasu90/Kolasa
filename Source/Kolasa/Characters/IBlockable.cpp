@@ -2,11 +2,11 @@
 #include "IBlockable.h"
 
 void IBlockable::ActivateMove() {
-	bIsActive = true;
+	this->bIsActive = true;
 }
 
-void IBlockable::DeactivateMove() {
-	bIsActive = false;
+void IBlockable::DeactivateMove(){
+	this->bIsActive = false;
 }
 
 bool IBlockable::IsActiveMove() {

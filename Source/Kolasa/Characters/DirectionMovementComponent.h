@@ -25,6 +25,7 @@ protected:
 	float ForwardFactor;
 	FVector Direction;
 	FHitResult CollisionHit;
+	//Deprecated Field
 	FHitResult RayHit;
 	virtual void RotateOrtogonalToPlane(FHitResult & OutHit) PURE_VIRTUAL(UDirectionMovementComponent::RotateOrtogonalToPlane, ;);
 	virtual void Move(FVector value, float DeltaTime);
