@@ -3,3 +3,4 @@
 #include "Kolasa.h"
 
 IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, Kolasa, "Kolasa" );
+DEFINE_LOG_CATEGORY(ER_Log);

@@ -4,3 +4,5 @@
 
 #include "Engine.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(ER_Log, Log, All);
+
