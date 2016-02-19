@@ -6,6 +6,7 @@
 #include "GravityMovementComponent.h"
 #include "ForwardMovementComponent.h"
 #include "RightMovementComponent.h"
+#include "LeftMovementComponent.h"
 #include "CharacterWithoutGravity.generated.h"
 
 UCLASS()
@@ -35,6 +36,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	URightMovementComponent* RightMovementComponent;
 
+	UPROPERTY(EDitDefaultsOnly)
+	ULeftMovementComponent* LeftMovementComponent;
+
 	UArrowComponent* DownTrace;
 	UArrowComponent* ForwardTrace;
 	UArrowComponent* RightTrace;
@@ -46,6 +50,8 @@ public:
 	float gravityFactor = 500.0f;
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "1.0", ClampMax = "10000.0"))
 	float rightFactor = 500.0f;
+	UPROPERTY(EditAnywhere, meta = (ClampMin = "1.0", ClampMax = "10000.0"))
+	float leftFactor = 500.0f;
 
 	// Sets default values for this pawn's properties
 	ACharacterWithoutGravity();

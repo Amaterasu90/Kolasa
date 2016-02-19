@@ -5,6 +5,7 @@
 class IBlockable
 {
 public:
+	bool _bIsEndSmoothRotation;
 	virtual void ActivateMove();
 	virtual void DeactivateMove();
 	virtual void ActivateRotation();

@@ -25,13 +25,14 @@ public:
 protected:
 	FVector GetRayBegin();
 	FRotator GetRayRotation();
+	FVector GetRayRelativeLocation();
 	float ForwardFactor;
 	FVector Direction;
 	FHitResult CollisionHit;
 	virtual void RotateOrtogonalToPlane(FHitResult & OutHit) PURE_VIRTUAL(UDirectionMovementComponent::RotateOrtogonalToPlane, ;);
 	virtual void Move(FVector value, float DeltaTime);
 	virtual FVector GetDisplacement(float DeltaTime);
-private:
 	FVector GetScanArm(FVector startLocation);
+private:
 	RayProvider _provider;
 };

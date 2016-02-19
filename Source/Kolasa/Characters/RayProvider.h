@@ -12,6 +12,7 @@ public:
 	RayProvider(UArrowComponent* arrow);
 	FVector GetLocation();
 	FRotator GetRotation();
+	FVector GetRelativeLocation();
 	~RayProvider();
 private:
 	UArrowComponent* _arrowComponent;

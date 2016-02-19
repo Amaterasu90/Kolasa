@@ -2,6 +2,7 @@
 
 #include "Kolasa.h"
 #include "DirectionMovementComponent.h"
+#include "Libraries/RunnerMath.h"
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 #include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
 
@@ -18,7 +19,7 @@ void UDirectionMovementComponent::TickComponent(float DeltaTime, enum ELevelTick
 
 FVector UDirectionMovementComponent::GetScanArm(FVector startLocation) {
 	FRotator currentRotation = GetRayRotation();
-	FVector forwardVector = UKismetMathLibrary::GetForwardVector(currentRotation);
+	FVector forwardVector = RunnerMath::GetCleared(UKismetMathLibrary::GetForwardVector(currentRotation),0.01f);
 	return startLocation + forwardVector * scanArmLenght;
 }
 
@@ -47,6 +48,10 @@ FVector UDirectionMovementComponent::GetRayBegin(){
 
 FRotator UDirectionMovementComponent::GetRayRotation(){
 	return _provider.GetRotation();
+}
+
+FVector UDirectionMovementComponent::GetRayRelativeLocation(){
+	return _provider.GetRelativeLocation();
 }
 
 void UDirectionMovementComponent::Move(FVector value,float DeltaTime){

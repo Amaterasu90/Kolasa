@@ -9,20 +9,36 @@
 void URightMovementComponent::BeginPlay() {
 	Direction = FVector::ZeroVector;
 	ActivateMove();
+	ActivateRotation();
 	counter = 0.0f;
+	lastHitLocation = GetRayBegin();
 }
 
 void URightMovementComponent::ActivateMove() {
 	if (!IBlockable::IsActiveMove()) {
 		IBlockable::ActivateMove();
-		UE_LOG(ER_Log, Display, TEXT("Activate RightMovementComponent"));
+		UE_LOG(ER_Log, Display, TEXT("Activate Move RightMovementComponent"));
 	}
 }
 
 void URightMovementComponent::DeactivateMove() {
 	if (IBlockable::IsActiveMove()) {
 		IBlockable::DeactivateMove();
-		UE_LOG(ER_Log, Display, TEXT("Deactivate RightMovementComponent"));
+		UE_LOG(ER_Log, Display, TEXT("Deactivate Move RightMovementComponent"));
+	}
+}
+
+void URightMovementComponent::ActivateRotation(){
+	if (!IBlockable::IsActiveRotation()) {
+		IBlockable::ActivateRotation();
+		UE_LOG(ER_Log, Display, TEXT("Activate Rotation RightMovementComponent"))
+	}
+}
+
+void URightMovementComponent::DeactivateRotation(){
+	if (IBlockable::IsActiveRotation()) {
+		IBlockable::DeactivateRotation();
+		UE_LOG(ER_Log, Display, TEXT("Deactivate Rotation RightMovementComponent"));
 	}
 }
 
@@ -34,9 +50,10 @@ void URightMovementComponent::Move(FVector value, float DeltaTime) {
 			SafeMoveUpdatedComponent(DesiredMovementThisFrame, UpdatedComponent->GetComponentRotation(), true, CollisionHit);
 		}
 	}
-
-	FHitResult hit = GetRayHit();
-	SmoothRotateToPlane(hit, DeltaTime);
+	if (IsActiveRotation()) {
+		FHitResult hit = GetRayHit();
+		SmoothRotateToPlane(hit, DeltaTime);
+	}
 }
 
 void URightMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float DeltaTime) {
@@ -46,7 +63,9 @@ void URightMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float Delt
 	if (InHit.IsValidBlockingHit()) {
 		DeactivateMove();
 		_downMovement->DeactivateMove();
+		_leftRotation->DeactivateRotation();
 		newRotation = GetOrtogonalToPlane(InHit);
+		lastHitLocation = RunnerMath::GetCleared(InHit.ImpactPoint,0.01f);
 	}
 
 	float end = CalcEndIteration(clampedCurrent.Roll, newRotation.Roll);
@@ -56,9 +75,23 @@ void URightMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float Delt
 	}
 	else if (counter != 0.0f) {
 		UpdatedComponent->SetRelativeRotation(newRotation);
-		counter = 0.0f;
 		ActivateMove();
 		_downMovement->ActivateMove();
+		counter = 0.0f;
+		_downMovement->_bIsEndSmoothRotation = true;
+	}
+
+	if (_downMovement->_bIsEndSmoothRotation)
+	{
+		FVector currentLocation = UpdatedComponent->GetComponentLocation();
+		FVector diff = lastHitLocation - currentLocation;
+		float size = diff.Size();
+		FVector beginScanArm = GetRayRelativeLocation();
+
+		if (size > FMath::Sqrt(scanArmLenght*scanArmLenght + beginScanArm.Z*beginScanArm.Z)) {
+			_downMovement->ActivateRotation();
+			_downMovement->_bIsEndSmoothRotation = false;
+		}
 	}
 }
 
@@ -116,4 +149,8 @@ void URightMovementComponent::TickComponent(float DeltaTime, enum ELevelTick Tic
 
 void URightMovementComponent::SetDown(IBlockable* down) {
 	_downMovement = down;
+}
+
+void URightMovementComponent::SetLeft(IBlockable * left){
+	_leftRotation = left;
 }

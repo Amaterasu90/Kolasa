@@ -19,5 +19,9 @@ FRotator RayProvider::GetRotation() {
 	return _arrowComponent ? _arrowComponent->GetComponentRotation() : FRotator::ZeroRotator;
 }
 
+FVector RayProvider::GetRelativeLocation(){
+	return _arrowComponent->RelativeLocation;
+}
+
 RayProvider::~RayProvider(){
 }

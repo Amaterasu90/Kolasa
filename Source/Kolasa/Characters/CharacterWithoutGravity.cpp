@@ -41,6 +41,8 @@ void ACharacterWithoutGravity::InitializeMovementComponent(){
 	GravityMovementComponent->UpdatedComponent = RootComponent;
 	RightMovementComponent = CreateDefaultSubobject<URightMovementComponent>("RightComponent");
 	RightMovementComponent->UpdatedComponent = RootComponent;
+	LeftMovementComponent = CreateDefaultSubobject<ULeftMovementComponent>("LeftComponent");
+	LeftMovementComponent->UpdatedComponent = RootComponent;
 }
 
 void ACharacterWithoutGravity::InitializeForwardTrace(){
@@ -129,10 +131,14 @@ void ACharacterWithoutGravity::BeginPlay(){
 	ForwardMovementComponent->SetForwardFactor(forwardFactor);
 	GravityMovementComponent->SetForwardFactor(gravityFactor);
 	RightMovementComponent->SetForwardFactor(rightFactor);
+	LeftMovementComponent->SetForwardFactor(leftFactor);
 	
 	ForwardMovementComponent->SetDown(GravityMovementComponent);
 	GravityMovementComponent->SetForward(ForwardMovementComponent);
 	RightMovementComponent->SetDown(GravityMovementComponent);
+	RightMovementComponent->SetLeft(LeftMovementComponent);
+	LeftMovementComponent->SetDown(GravityMovementComponent);
+	LeftMovementComponent->SetRight(RightMovementComponent);
 
 	RayProvider forward(ForwardTrace);
 	ForwardMovementComponent->SetScanRay(forward);
@@ -142,6 +148,9 @@ void ACharacterWithoutGravity::BeginPlay(){
 
 	RayProvider right(RightTrace);
 	RightMovementComponent->SetScanRay(right);
+
+	RayProvider left(LeftTrace);
+	LeftMovementComponent->SetScanRay(left);
 }
 
 // Called every frame
