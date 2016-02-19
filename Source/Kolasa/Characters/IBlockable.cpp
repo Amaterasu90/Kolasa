@@ -2,13 +2,25 @@
 #include "IBlockable.h"
 
 void IBlockable::ActivateMove() {
-	this->bIsActive = true;
+	this->bMoveIsActive = true;
 }
 
 void IBlockable::DeactivateMove(){
-	this->bIsActive = false;
+	this->bMoveIsActive = false;
+}
+
+void IBlockable::ActivateRotation(){
+	this->bRotationIsActive = true;
+}
+
+void IBlockable::DeactivateRotation(){
+	this->bRotationIsActive = false;
 }
 
 bool IBlockable::IsActiveMove() {
-	return bIsActive;
+	return bMoveIsActive;
+}
+
+bool IBlockable::IsActiveRotation(){
+	return this->bRotationIsActive;
 }
