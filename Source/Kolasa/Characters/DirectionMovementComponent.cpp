@@ -16,11 +16,15 @@ void UDirectionMovementComponent::TickComponent(float DeltaTime, enum ELevelTick
 	Move(DesiredMovementThisFrame,DeltaTime);
 }
 
-FHitResult UDirectionMovementComponent::GetRayHit() {
-	FVector currentLocation = GetRayBegin();
+FVector UDirectionMovementComponent::GetScanArm(FVector startLocation) {
 	FRotator currentRotation = GetRayRotation();
 	FVector forwardVector = UKismetMathLibrary::GetForwardVector(currentRotation);
-	FVector scanArm = currentLocation + forwardVector * scanArmLenght;
+	return startLocation + forwardVector * scanArmLenght;
+}
+
+FHitResult UDirectionMovementComponent::GetRayHit() {
+	FVector currentLocation = GetRayBegin();
+	FVector scanArm = GetScanArm(currentLocation);
 
 	TArray<AActor*> ignore;
 	FHitResult result;
@@ -52,5 +56,5 @@ void UDirectionMovementComponent::Move(FVector value,float DeltaTime){
 FVector UDirectionMovementComponent::GetDisplacement(float DeltaTime) { return FVector::ZeroVector; }
 
 void UDirectionMovementComponent::BeginPlay() {
-	Direction = UpdatedComponent->GetForwardVector();
+	Direction = FVector::ZeroVector;
 }

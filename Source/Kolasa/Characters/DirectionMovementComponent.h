@@ -32,5 +32,6 @@ protected:
 	virtual void Move(FVector value, float DeltaTime);
 	virtual FVector GetDisplacement(float DeltaTime);
 private:
+	FVector GetScanArm(FVector startLocation);
 	RayProvider _provider;
 };
