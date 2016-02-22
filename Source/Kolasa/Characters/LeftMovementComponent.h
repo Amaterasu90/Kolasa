@@ -20,6 +20,7 @@ public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 	void SetDown(IBlockable* down);
 	void SetRight(IBlockable* right);
+	void SetHitRight(IHitable* hit);
 	void SmoothRotateToPlane(FHitResult& InHit, float DeltaTime);
 	void UpdateDirection(FRotator rotation);
 	virtual void ActivateMove() override;
@@ -32,6 +33,7 @@ protected:
 private:
 	IBlockable* _downMovement;
 	IBlockable* _rightMovement;
+	IHitable* _rightHit;
 	FVector lastHitLocation;
 	float counter;
 	float countingDirection;

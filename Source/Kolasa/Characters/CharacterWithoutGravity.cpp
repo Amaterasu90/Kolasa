@@ -135,10 +135,14 @@ void ACharacterWithoutGravity::BeginPlay(){
 	
 	ForwardMovementComponent->SetDown(GravityMovementComponent);
 	GravityMovementComponent->SetForward(ForwardMovementComponent);
+	
 	RightMovementComponent->SetDown(GravityMovementComponent);
 	RightMovementComponent->SetLeft(LeftMovementComponent);
+	RightMovementComponent->SetLeftHit(LeftMovementComponent);
+	
 	LeftMovementComponent->SetDown(GravityMovementComponent);
 	LeftMovementComponent->SetRight(RightMovementComponent);
+	LeftMovementComponent->SetHitRight(RightMovementComponent);
 
 	RayProvider forward(ForwardTrace);
 	ForwardMovementComponent->SetScanRay(forward);

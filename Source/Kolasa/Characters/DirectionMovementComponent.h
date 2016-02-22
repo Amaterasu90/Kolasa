@@ -4,6 +4,7 @@
 
 #include "GameFramework/PawnMovementComponent.h"
 #include "IBlockable.h"
+#include "IHitable.h"
 #include "RayProvider.h"
 #include "DirectionMovementComponent.generated.h"
 
@@ -11,7 +12,7 @@
  * 
  */
 UCLASS(abstract)
-class KOLASA_API UDirectionMovementComponent : public UPawnMovementComponent, public IBlockable
+class KOLASA_API UDirectionMovementComponent : public UPawnMovementComponent, public IBlockable, public IHitable
 {
 	GENERATED_BODY()
 public:
@@ -21,7 +22,7 @@ public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 	void SetForwardFactor(float value);
 	void SetScanRay(RayProvider provider);
-	FHitResult GetRayHit();
+	virtual FHitResult GetRayHit();
 protected:
 	FVector GetRayBegin();
 	FRotator GetRayRotation();

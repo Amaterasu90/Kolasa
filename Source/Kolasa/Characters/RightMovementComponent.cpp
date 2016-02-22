@@ -57,7 +57,6 @@ void URightMovementComponent::Move(FVector value, float DeltaTime) {
 }
 
 void URightMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float DeltaTime) {
-
 	FRotator clampedCurrent = UpdatedComponent->GetComponentRotation();
 
 	if (InHit.IsValidBlockingHit()) {
@@ -65,32 +64,29 @@ void URightMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float Delt
 		_downMovement->DeactivateMove();
 		_leftRotation->DeactivateRotation();
 		newRotation = GetOrtogonalToPlane(InHit);
-		lastHitLocation = RunnerMath::GetCleared(InHit.ImpactPoint,0.01f);
 	}
 
 	float end = CalcEndIteration(clampedCurrent.Roll, newRotation.Roll);
 	if (FMath::Abs(counter) < end && newRotation != FRotator::ZeroRotator) {
 		UpdatedComponent->SetRelativeRotation(FRotator(newRotation.Pitch, newRotation.Yaw, clampedCurrent.Roll + counter));
-		counter += CalcIterationStep(clampedCurrent.Roll, newRotation.Roll, DeltaTime);;
+		counter += CalcIterationStep(clampedCurrent.Roll, newRotation.Roll, DeltaTime);
 	}
 	else if (counter != 0.0f) {
 		UpdatedComponent->SetRelativeRotation(newRotation);
 		ActivateMove();
 		_downMovement->ActivateMove();
 		counter = 0.0f;
-		_downMovement->_bIsEndSmoothRotation = true;
+		newRotation = FRotator::ZeroRotator;
+		IBlockable::_bIsEndSmoothRotation = true;
 	}
 
-	if (_downMovement->_bIsEndSmoothRotation)
+	if (IBlockable::_bIsEndSmoothRotation)
 	{
-		FVector currentLocation = UpdatedComponent->GetComponentLocation();
-		FVector diff = lastHitLocation - currentLocation;
-		float size = diff.Size();
-		FVector beginScanArm = GetRayRelativeLocation();
-
-		if (size > FMath::Sqrt(scanArmLenght*scanArmLenght + beginScanArm.Z*beginScanArm.Z)) {
-			_downMovement->ActivateRotation();
-			_downMovement->_bIsEndSmoothRotation = false;
+		FHitResult hitLeft = _leftHit->GetRayHit();
+		if (!hitLeft.IsValidBlockingHit())
+		{
+			_leftRotation->ActivateRotation();
+			IBlockable::_bIsEndSmoothRotation = false;
 		}
 	}
 }
@@ -153,4 +149,8 @@ void URightMovementComponent::SetDown(IBlockable* down) {
 
 void URightMovementComponent::SetLeft(IBlockable * left){
 	_leftRotation = left;
+}
+
+void URightMovementComponent::SetLeftHit(IHitable * hit){
+	_leftHit = hit;
 }

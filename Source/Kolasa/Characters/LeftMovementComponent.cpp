@@ -42,7 +42,7 @@ void ULeftMovementComponent::Move(FVector value, float DeltaTime) {
 	}
 }
 
-void ULeftMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float DeltaTime) {
+void ULeftMovementComponent::SmoothRotateToPlane(FHitResult& InHit, float DeltaTime) {
 
 	FRotator clampedCurrent = UpdatedComponent->GetComponentRotation();
 
@@ -51,7 +51,6 @@ void ULeftMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float Delta
 		_downMovement->DeactivateMove();
 		_rightMovement->DeactivateRotation();
 		newRotation = GetOrtogonalToPlane(InHit);
-		lastHitLocation = InHit.ImpactPoint;
 	}
 
 	float end = CalcEndIteration(clampedCurrent.Roll, newRotation.Roll);
@@ -63,10 +62,21 @@ void ULeftMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float Delta
 		UpdatedComponent->SetRelativeRotation(newRotation);
 		ActivateMove();
 		_downMovement->ActivateMove();
-		_rightMovement->_bIsEndSmoothRotation = true;
+		counter = 0.0f;
+		newRotation = FRotator::ZeroRotator;
+		IBlockable::_bIsEndSmoothRotation = true;
 	}
 
-
+	
+	if (IBlockable::_bIsEndSmoothRotation)
+	{
+		FHitResult hitRight = _rightHit->GetRayHit();
+		if (!hitRight.IsValidBlockingHit())
+		{
+			_rightMovement->ActivateRotation();
+			IBlockable::_bIsEndSmoothRotation = false;
+		}
+	}
 }
 
 float ULeftMovementComponent::CalcIterationStep(float oldRoll, float newRoll, float deltaTime) {
@@ -127,6 +137,10 @@ void ULeftMovementComponent::SetDown(IBlockable* down) {
 
 void ULeftMovementComponent::SetRight(IBlockable * right){
 	_rightMovement = right;
+}
+
+void ULeftMovementComponent::SetHitRight(IHitable * hit){
+	this->_rightHit = hit;
 }
 
 
