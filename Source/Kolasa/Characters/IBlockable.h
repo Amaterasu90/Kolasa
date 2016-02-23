@@ -5,15 +5,17 @@
 class IBlockable
 {
 public:
-	bool _bIsEndSmoothRotation;
+	bool bIsEndSmoothRotation;
 	virtual void ActivateMove();
 	virtual void DeactivateMove();
 	virtual void ActivateRotation();
 	virtual void DeactivateRotation();
 	bool IsActiveMove();
 	bool IsActiveRotation();
+	IBlockable();
+	~IBlockable();
 private:
-	bool bMoveIsActive;
-	bool bRotationIsActive;
+	bool _bMoveIsActive;
+	bool _bRotationIsActive;
 };
 

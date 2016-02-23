@@ -64,17 +64,17 @@ void ULeftMovementComponent::SmoothRotateToPlane(FHitResult& InHit, float DeltaT
 		_downMovement->ActivateMove();
 		counter = 0.0f;
 		newRotation = FRotator::ZeroRotator;
-		IBlockable::_bIsEndSmoothRotation = true;
+		IBlockable::bIsEndSmoothRotation = true;
 	}
 
 	
-	if (IBlockable::_bIsEndSmoothRotation)
+	if (IBlockable::bIsEndSmoothRotation)
 	{
 		FHitResult hitRight = _rightHit->GetRayHit();
 		if (!hitRight.IsValidBlockingHit())
 		{
 			_rightMovement->ActivateRotation();
-			IBlockable::_bIsEndSmoothRotation = false;
+			IBlockable::bIsEndSmoothRotation = false;
 		}
 	}
 }
@@ -114,7 +114,7 @@ FVector ULeftMovementComponent::GetDisplacement(float DeltaTime) {
 }
 
 
-FRotator ULeftMovementComponent::GetOrtogonalToPlane(FHitResult & InHit) {
+FRotator ULeftMovementComponent::GetOrtogonalToPlane(FHitResult& InHit) {
 	FVector normalToPlane = RunnerMath::GetCleared(InHit.ImpactNormal, 0.01f);
 	FVector rightActor = RunnerMath::GetCleared(UpdatedComponent->GetRightVector(), 0.01f);
 	FVector upActor = RunnerMath::GetCleared(UpdatedComponent->GetUpVector(), 0.01f);

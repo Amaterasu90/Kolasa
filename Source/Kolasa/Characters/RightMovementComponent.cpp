@@ -77,16 +77,16 @@ void URightMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float Delt
 		_downMovement->ActivateMove();
 		counter = 0.0f;
 		newRotation = FRotator::ZeroRotator;
-		IBlockable::_bIsEndSmoothRotation = true;
+		IBlockable::bIsEndSmoothRotation = true;
 	}
 
-	if (IBlockable::_bIsEndSmoothRotation)
+	if (IBlockable::bIsEndSmoothRotation)
 	{
 		FHitResult hitLeft = _leftHit->GetRayHit();
 		if (!hitLeft.IsValidBlockingHit())
 		{
 			_leftRotation->ActivateRotation();
-			IBlockable::_bIsEndSmoothRotation = false;
+			IBlockable::bIsEndSmoothRotation = false;
 		}
 	}
 }
