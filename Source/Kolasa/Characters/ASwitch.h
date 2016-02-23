@@ -8,6 +8,7 @@
 class KOLASA_API ASwitch
 {
 public:
+
 	virtual void Activate();
 	virtual void Deactivate();
 	bool IsActive();

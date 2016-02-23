@@ -4,13 +4,11 @@
 #include "AutomationCommon.h" //To get the wait latent command.
 #include "AutomationTest.h"
 
-MoveSwitch defaultMoveSwitch;
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FIsAcviteMove_ActivateMove_true, "UnitTests.IBlockable.IsAcviteMove_ActivateMove_true", (EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::SmokeFilter))
-
-bool FIsAcviteMove_ActivateMove_true::RunTest(const FString& Parameters)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMS_IsActive_Activate_true, "UnitTests.SwitchInterface.MoveSwitch.IsActive_Activate_true", (EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::SmokeFilter))
+bool FMS_IsActive_Activate_true::RunTest(const FString& Parameters)
 {
-
-	MoveSwitch blockable = defaultMoveSwitch;
+	MoveSwitch blockable;
+	
 	blockable.Activate();
 
 	bool condition = blockable.IsActive();
@@ -18,10 +16,11 @@ bool FIsAcviteMove_ActivateMove_true::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FIsAcviteMove_DeactivateMove_false, "UnitTests.IBlockable.IsAcviteMove_DeactivateMove_false", (EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::SmokeFilter))
-bool FIsAcviteMove_DeactivateMove_false::RunTest(const FString& Parameters)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMS_IsActive_Deactivate_false, "UnitTests.SwitchInterface.MoveSwitch.IsActive_Deactivate_false", (EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::SmokeFilter))
+bool FMS_IsActive_Deactivate_false::RunTest(const FString& Parameters)
 {
-	MoveSwitch blockable = defaultMoveSwitch;
+	MoveSwitch blockable;
+	
 	blockable.Deactivate();
 
 	bool condition = blockable.IsActive();

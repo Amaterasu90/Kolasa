@@ -2,14 +2,14 @@
 
 #pragma once
 
-#include "Characters/DirectionMovementComponent.h"
+#include "Characters/RotationMovementComponent.h"
 #include "RightMovementComponent.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class KOLASA_API URightMovementComponent : public UDirectionMovementComponent
+class KOLASA_API URightMovementComponent : public URotationMovementComponent
 {
 	GENERATED_BODY()
 	
@@ -18,23 +18,23 @@ public:
 	float smoothClimbFactor = 1.0f;
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
-	void SetDown(IBlockable* down);
-	void SetLeft(IBlockable* left);
+	void SetDown(MoveSwitch* down);
+	void SetLeft(RotationSwitch* left);
 	void SetLeftHit(IHitable* hit);
 	void SmoothRotateToPlane(FHitResult& InHit, float DeltaTime);
 	void UpdateDirection(FRotator rotation);
-	virtual void ActivateMove() override;
-	virtual void DeactivateMove() override;
-	virtual void ActivateRotation() override;
-	virtual void DeactivateRotation() override;
+	void ActivateMove();
+	void DeactivateMove();
+	void ActivateRotation();
+	void DeactivateRotation();
 protected:
 	virtual void Move(FVector value, float DeltaTime) override;
 	virtual void RotateOrtogonalToPlane(FHitResult & InHit) override;
 	virtual FVector GetDisplacement(float DeltaTime) override;
 	FRotator GetOrtogonalToPlane(FHitResult& InHit);
 private:
-	IBlockable* _downMovement;
-	IBlockable* _leftRotation;
+	MoveSwitch* _downMovement;
+	RotationSwitch* _leftRotation;
 	IHitable* _leftHit;
 	float counter;
 	float countingDirection;

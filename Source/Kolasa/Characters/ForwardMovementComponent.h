@@ -18,16 +18,18 @@ public:
 	float smoothClimbFactor = 1.0f;
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
-	void SetDown(IBlockable* down);
+	void SetDown(MoveSwitch* down);
 	void SmoothRotateToPlane(FHitResult& InHit, float DeltaTime);
 	void UpdateDirection(FRotator rotation);
+	void DeactivateMove();
+	void ActivateMove();
 protected:
 	virtual void Move(FVector value, float DeltaTime) override;
 	virtual void RotateOrtogonalToPlane(FHitResult & InHit) override;
 	virtual FVector GetDisplacement(float DeltaTime) override;
 private:
 	FRotator GetOrtogonalToPlane(FHitResult& InHit);
-	IBlockable* _downMovement;
+	MoveSwitch* _downMovement;
 	FRotator newRotation;
 	float counter;
 	float countingDirection;

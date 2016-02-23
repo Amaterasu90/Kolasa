@@ -14,43 +14,28 @@ void UForwardMovementComponent::BeginPlay() {
 }
 
 void UForwardMovementComponent::Move(FVector value, float DeltaTime){
-	if (IsActiveMove()) {
+	if (MoveSwitch::IsActive()) {
 		if (!value.IsNearlyZero()) {
 			SafeMoveUpdatedComponent(value, UpdatedComponent->GetComponentRotation(), true, CollisionHit);
 		}
-	}
-
-	FHitResult hit = GetRayHit();
-	
-	SmoothRotateToPlane(hit,DeltaTime);
-}
-
-void UForwardMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float DeltaTime) {
-	
-	FRotator clampedCurrent = UpdatedComponent->GetComponentRotation();
-	if (InHit.IsValidBlockingHit()) {
-		DeactivateMove();
-		_downMovement->DeactivateMove();
-		newRotation = GetOrtogonalToPlane(InHit);
-		countingDirection = FMath::Sign(newRotation.Pitch - clampedCurrent.Pitch)*DeltaTime*smoothClimbFactor;
-		UpdateDirection(newRotation);
-	}
-	
-	if (FMath::Abs(counter) < FMath::Abs(newRotation.Pitch - clampedCurrent.Pitch) && newRotation != FRotator::ZeroRotator) {
-		UpdatedComponent->SetRelativeRotation(FRotator(clampedCurrent.Pitch + counter, newRotation.Yaw, newRotation.Roll));
-		counter += countingDirection;
-	}
-	else if (counter != 0.0f) {
-		UpdatedComponent->SetRelativeRotation(newRotation);
-		counter = 0.0f;
-		ActivateMove();
-		_downMovement->ActivateMove();
 	}
 }
 
 void UForwardMovementComponent::UpdateDirection(FRotator rotation) {
 	Direction = rotation.Vector();
 	Direction.Normalize();
+}
+
+void UForwardMovementComponent::DeactivateMove(){
+	if (MoveSwitch::IsActive()) {
+		MoveSwitch::Deactivate();
+	}
+}
+
+void UForwardMovementComponent::ActivateMove(){
+	if (!MoveSwitch::IsActive()) {
+		MoveSwitch::Activate();
+	}
 }
 
 void UForwardMovementComponent::RotateOrtogonalToPlane(FHitResult & InHit) {
@@ -84,7 +69,7 @@ void UForwardMovementComponent::TickComponent(float DeltaTime, enum ELevelTick T
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UForwardMovementComponent::SetDown(IBlockable* down){
+void UForwardMovementComponent::SetDown(MoveSwitch* down){
 	_downMovement = down;
 }
 

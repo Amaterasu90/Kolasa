@@ -4,25 +4,8 @@
 #include "AutomationCommon.h" //To get the wait latent command.
 #include "AutomationTest.h"
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFloatTest, "UnitTests.Equal.Float", (EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::SmokeFilter))
-
-bool FFloatTest::RunTest(const FString& Parameters)
-{
-	TestEqual<float>("Float equeal", 1.1f, 1.1f);
-    return true;
-}
-
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FIntTest, "UnitTests.Equal.Int", (EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::SmokeFilter))
-
-bool FIntTest::RunTest(const FString& Parameters)
-{
-	TestEqual<int>("Float equeal", 1,1);
-	return true;
-}
-
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FACharacter_InitializeSpringArmComponent_DefaultConstructor_BoomCameraNameBoomCameraTest, "Character.UnitTests.FACharacter_InitializeSpringArmComponent_DefaultConstructor_BoomCameraNameBoomCameraTest",
 	(EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::SmokeFilter))
-
 UWorld* GetWorld()
 {
 	if (GEngine)

@@ -6,9 +6,10 @@
 /**
  * 
  */
-class KOLASA_API RotationSwitch : ASwitch
+class KOLASA_API RotationSwitch : public ASwitch
 {
 public:
+	bool bIsEndSmoothRotation;
 	virtual void Activate() override;
 	virtual void Deactivate() override;
 	RotationSwitch();

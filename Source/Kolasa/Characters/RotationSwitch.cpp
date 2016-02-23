@@ -14,6 +14,7 @@ void RotationSwitch::Deactivate(){
 }
 
 RotationSwitch::RotationSwitch() : ASwitch(){
+	bIsEndSmoothRotation = false;
 }
 
 RotationSwitch::~RotationSwitch(){

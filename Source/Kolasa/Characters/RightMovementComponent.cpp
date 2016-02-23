@@ -7,7 +7,6 @@
 #include "RightMovementComponent.h"
 
 void URightMovementComponent::BeginPlay() {
-	Direction = FVector::ZeroVector;
 	ActivateMove();
 	ActivateRotation();
 	counter = 0.0f;
@@ -15,42 +14,43 @@ void URightMovementComponent::BeginPlay() {
 }
 
 void URightMovementComponent::ActivateMove() {
-	if (!IBlockable::IsActiveMove()) {
-		IBlockable::ActivateMove();
+	if (!MoveSwitch::IsActive()) {
+		MoveSwitch::Activate();
 		UE_LOG(ER_Log, Display, TEXT("Activate Move RightMovementComponent"));
 	}
 }
 
 void URightMovementComponent::DeactivateMove() {
-	if (IBlockable::IsActiveMove()) {
-		IBlockable::DeactivateMove();
+	if (MoveSwitch::IsActive()) {
+		MoveSwitch::Deactivate();
 		UE_LOG(ER_Log, Display, TEXT("Deactivate Move RightMovementComponent"));
 	}
 }
 
 void URightMovementComponent::ActivateRotation(){
-	if (!IBlockable::IsActiveRotation()) {
-		IBlockable::ActivateRotation();
+	if (!RotationSwitch::IsActive()) {
+		RotationSwitch::Activate();
 		UE_LOG(ER_Log, Display, TEXT("Activate Rotation RightMovementComponent"))
 	}
 }
 
 void URightMovementComponent::DeactivateRotation(){
-	if (IBlockable::IsActiveRotation()) {
-		IBlockable::DeactivateRotation();
+	if (RotationSwitch::IsActive()) {
+		RotationSwitch::Deactivate();
 		UE_LOG(ER_Log, Display, TEXT("Deactivate Rotation RightMovementComponent"));
 	}
 }
 
 void URightMovementComponent::Move(FVector value, float DeltaTime) {
 
-	if (IsActiveMove()) {
+	if (MoveSwitch::IsActive()) {
 		FVector DesiredMovementThisFrame = ConsumeInputVector().GetClampedToMaxSize(1.0f)* ForwardFactor * DeltaTime + value;
 		if (!DesiredMovementThisFrame.IsNearlyZero()) {
-			SafeMoveUpdatedComponent(DesiredMovementThisFrame, UpdatedComponent->GetComponentRotation(), true, CollisionHit);
+			FHitResult hit;
+			SafeMoveUpdatedComponent(DesiredMovementThisFrame, UpdatedComponent->GetComponentRotation(), true, hit);
 		}
 	}
-	if (IsActiveRotation()) {
+	if (RotationSwitch::IsActive()) {
 		FHitResult hit = GetRayHit();
 		SmoothRotateToPlane(hit, DeltaTime);
 	}
@@ -61,8 +61,8 @@ void URightMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float Delt
 
 	if (InHit.IsValidBlockingHit()) {
 		DeactivateMove();
-		_downMovement->DeactivateMove();
-		_leftRotation->DeactivateRotation();
+		_downMovement->Deactivate();
+		_leftRotation->Deactivate();
 		newRotation = GetOrtogonalToPlane(InHit);
 	}
 
@@ -74,19 +74,19 @@ void URightMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float Delt
 	else if (counter != 0.0f) {
 		UpdatedComponent->SetRelativeRotation(newRotation);
 		ActivateMove();
-		_downMovement->ActivateMove();
+		_downMovement->Activate();
 		counter = 0.0f;
 		newRotation = FRotator::ZeroRotator;
-		IBlockable::bIsEndSmoothRotation = true;
+		_leftRotation->bIsEndSmoothRotation = true;
 	}
 
-	if (IBlockable::bIsEndSmoothRotation)
+	if (_leftRotation->bIsEndSmoothRotation)
 	{
 		FHitResult hitLeft = _leftHit->GetRayHit();
 		if (!hitLeft.IsValidBlockingHit())
 		{
-			_leftRotation->ActivateRotation();
-			IBlockable::bIsEndSmoothRotation = false;
+			_leftRotation->Activate();
+			_leftRotation->bIsEndSmoothRotation = false;
 		}
 	}
 }
@@ -112,8 +112,7 @@ float URightMovementComponent::CalcEndIteration(float oldRoll, float newRoll){
 }
 
 void URightMovementComponent::UpdateDirection(FRotator rotation) {
-	Direction = rotation.Vector();
-	Direction.Normalize();
+	
 }
 
 void URightMovementComponent::RotateOrtogonalToPlane(FHitResult & InHit) {
@@ -122,7 +121,7 @@ void URightMovementComponent::RotateOrtogonalToPlane(FHitResult & InHit) {
 }
 
 FVector URightMovementComponent::GetDisplacement(float DeltaTime) {
-	return Direction * DeltaTime * ForwardFactor;
+	return FVector::ZeroVector;
 }
 
 
@@ -143,11 +142,11 @@ void URightMovementComponent::TickComponent(float DeltaTime, enum ELevelTick Tic
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void URightMovementComponent::SetDown(IBlockable* down) {
+void URightMovementComponent::SetDown(MoveSwitch* down) {
 	_downMovement = down;
 }
 
-void URightMovementComponent::SetLeft(IBlockable * left){
+void URightMovementComponent::SetLeft(RotationSwitch * left){
 	_leftRotation = left;
 }
 
