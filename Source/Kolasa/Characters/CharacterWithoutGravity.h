@@ -7,6 +7,7 @@
 #include "ForwardMovementComponent.h"
 #include "RightMovementComponent.h"
 #include "LeftMovementComponent.h"
+#include "SideMovementComponent.h"
 #include "CharacterWithoutGravity.generated.h"
 
 UCLASS()
@@ -27,14 +28,17 @@ public:
 	UPROPERTY(EditAnywhere)
 	UCameraComponent* PlayerCamera;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	UGravityMovementComponent* GravityMovementComponent;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	UForwardMovementComponent* ForwardMovementComponent;
 
 	UPROPERTY(EditDefaultsOnly)
 	URightMovementComponent* RightMovementComponent;
+
+	UPROPERTY(EditDefaultsOnly)
+	USideMovementComponent* HorizontalMovementComponent;
 
 	UPROPERTY(EDitDefaultsOnly)
 	ULeftMovementComponent* LeftMovementComponent;
@@ -48,10 +52,10 @@ public:
 	float forwardFactor = 500.0f;
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "1.0", ClampMax = "10000.0"))
 	float gravityFactor = 500.0f;
-	UPROPERTY(EditAnywhere, meta = (ClampMin = "1.0", ClampMax = "10000.0"))
+	/*UPROPERTY(EditAnywhere, meta = (ClampMin = "1.0", ClampMax = "10000.0"))
 	float rightFactor = 500.0f;
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "1.0", ClampMax = "10000.0"))
-	float leftFactor = 500.0f;
+	float leftFactor = 500.0f;*/
 
 	// Sets default values for this pawn's properties
 	ACharacterWithoutGravity();
@@ -77,10 +81,11 @@ private:
 	void InitializeAnimationClass(TCHAR* animBlueprintPath);
 	void InitializeAnimationBlueprint(TCHAR* animBlueprintPath);
 	void InitializeMovementComponent();
-	void InitializeForwardTrace();
+	/*void InitializeForwardTrace();
 	void InitializeDownTrace();
-	void InitializeRightTrace();
+	*/
 	void InitializeLeftTrace();
+	void InitializeRightTrace();
 
 	void EventMoveRight(float AxisValue);
 	

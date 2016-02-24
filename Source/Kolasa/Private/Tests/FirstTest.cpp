@@ -6,33 +6,35 @@
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FACharacter_InitializeSpringArmComponent_DefaultConstructor_BoomCameraNameBoomCameraTest, "Character.UnitTests.FACharacter_InitializeSpringArmComponent_DefaultConstructor_BoomCameraNameBoomCameraTest",
 	(EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::SmokeFilter))
-UWorld* GetWorld()
-{
-	if (GEngine)
+namespace TestMyCharacter {
+	UWorld* GetWorld()
 	{
-		if (GEngine->GetWorldContexts().Num() == 1)
+		if (GEngine)
 		{
-			return GEngine->GetWorldContexts()[0].World();
+			if (GEngine->GetWorldContexts().Num() == 1)
+			{
+				return GEngine->GetWorldContexts()[0].World();
+			}
 		}
+		return nullptr;
 	}
-	return nullptr;
-}
 
-AMyCharacter* GetControlledCharacter(int playerIndex) {
-	UWorld* world = GetWorld();
-	if (world) {
-		APlayerController *playerController = UGameplayStatics::GetPlayerController(world, playerIndex);
-		APawn* pawn = playerController->GetPawn();
-		return Cast<AMyCharacter>(pawn);
+	AMyCharacter* GetControlledCharacter(int playerIndex) {
+		UWorld* world = GetWorld();
+		if (world) {
+			APlayerController *playerController = UGameplayStatics::GetPlayerController(world, playerIndex);
+			APawn* pawn = playerController->GetPawn();
+			return Cast<AMyCharacter>(pawn);
+		}
+		return NULL;
 	}
-	return NULL;
 }
 
 bool FACharacter_InitializeSpringArmComponent_DefaultConstructor_BoomCameraNameBoomCameraTest::RunTest(const FString& Parameters) {
 
 	FString expected = FString(TEXT("BoomCamera"));
 
-	AMyCharacter* character = GetControlledCharacter(0);
+	AMyCharacter* character = TestMyCharacter::GetControlledCharacter(0);
 
 	if (character) {
 		FString actual = character->BoomCamera->GetName();
@@ -46,7 +48,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FACharacter_InitializeSpringArmComponent_Defaul
 bool FACharacter_InitializeSpringArmComponent_DefaultConstructor_BoomCameraRelativeLocationTest::RunTest(const FString& Parameters) {
 	FVector expected = FVector(0.0f, 0.0f, 40.0f);
 
-	AMyCharacter* character = GetControlledCharacter(0);
+	AMyCharacter* character = TestMyCharacter::GetControlledCharacter(0);
 
 	if (character) {
 		FVector actual = character->BoomCamera->RelativeLocation;
@@ -59,7 +61,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FACharacter_InitializeSpringArmComponent_Defaul
 	"Character.UnitTests.FACharacter_InitializeSpringArmComponent_DefaultConstructor_BoomCameraAttachToRootComponentTest",
 	(EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::SmokeFilter)) 
 bool FACharacter_InitializeSpringArmComponent_DefaultConstructor_BoomCameraAttachToRootComponentTest::RunTest(const FString& Parameters) {
-	AMyCharacter *character = GetControlledCharacter(0);
+	AMyCharacter *character = TestMyCharacter::GetControlledCharacter(0);
 
 	if (character) {
 		USceneComponent *component = character->GetRootComponent();
@@ -75,7 +77,7 @@ bool FACharacter_InitializeCameraComponent_DefaultConstructor_PlayerCameraNamePl
 
 	FString expected = FString(TEXT("PlayerCamera"));
 
-	AMyCharacter* character = GetControlledCharacter(0);
+	AMyCharacter* character = TestMyCharacter::GetControlledCharacter(0);
 
 	if (character) {
 		FString actual = character->PlayerCamera->GetName();
@@ -88,7 +90,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FACharacter_InitializeCameraComponent_DefaultCo
 	"Character.UnitTests.FACharacter_InitializeCameraComponent_DefaultConstructor_PlayerCameraAttachToBoomCameraTest",
 	(EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::SmokeFilter))
 bool FACharacter_InitializeCameraComponent_DefaultConstructor_PlayerCameraAttachToBoomCameraTest::RunTest(const FString& Parameters) {
-	AMyCharacter *character = GetControlledCharacter(0);
+	AMyCharacter *character = TestMyCharacter::GetControlledCharacter(0);
 
 	if (character) {
 		UCameraComponent* camera = character->PlayerCamera;

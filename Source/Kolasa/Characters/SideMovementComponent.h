@@ -4,24 +4,23 @@
 
 #include "GameFramework/PawnMovementComponent.h"
 #include "MoveSwitch.h"
-#include "RayProvider.h"
-#include "DirectionMovementComponent.generated.h"
+#include "ISideDirectionMovement.h"
+#include "SideMovementComponent.generated.h"
 
 /**
  * 
  */
-UCLASS(abstract)
-class KOLASA_API UDirectionMovementComponent : public UPawnMovementComponent, public MoveSwitch
+UCLASS()
+class KOLASA_API USideMovementComponent : public UPawnMovementComponent, public MoveSwitch, public ISideDirectionMovement
 {
 	GENERATED_BODY()
+	
 public:
+	virtual FVector GetDirection() override;
+	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
-	void SetDirection(FVector newDirection);
-	void SetMoveFactor(float newMoveFactor);
-protected:
-	FVector GetDisplacement(float DeltaTime);
 private:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAcces = "true"))
-	float MoveFactor = 100.0f;
-	FVector Direction;
+	float MoveFactor = 1000.0f;
+	FVector DesiredMovementThisFrame;
 };

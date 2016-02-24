@@ -27,7 +27,7 @@ void AMyCharacter::InitializeAnimationBlueprint(USkeletalMeshComponent* inMesh, 
 	//must static loading
 	static ConstructorHelpers::FObjectFinder<UAnimBlueprint> animContainer(animBlueprintPath);
 	if (animContainer.Succeeded()) {
-		inMesh->AnimBlueprintGeneratedClass = (UAnimBlueprintGeneratedClass*)animContainer.Object->GetAnimBlueprintGeneratedClass();
+		inMesh->AnimClass = (UAnimBlueprintGeneratedClass*)animContainer.Object->GetAnimBlueprintGeneratedClass();
 	}
 }
 

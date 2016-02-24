@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Characters/DirectionMovementComponent.h"
+#include "Characters/RotationSwitch.h"
 #include "ForwardMovementComponent.h"
 #include "GravityMovementComponent.generated.h"
 
@@ -17,11 +18,18 @@ class KOLASA_API UGravityMovementComponent : public UDirectionMovementComponent
 public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
-	void SetForward(MoveSwitch* forward);
+	void SetBlockForward(MoveSwitch& forward);
+	void SetBlockSide(MoveSwitch& side);
+	void SetBlockLeft(RotationSwitch& left);
+	void SetBlockRight(RotationSwitch& right);
 protected:
-	virtual void Move(FVector value, float DeltaTime) override;
-	virtual void RotateOrtogonalToPlane(FHitResult & OutHit) override;
-	virtual FVector GetDisplacement(float DeltaTime) override;
+	void Move(FVector value);
 private:
+	void ManageBlockMove(FHitResult& result);
+	void UpdateDirection();
 	MoveSwitch* _forwardMovement;
+	MoveSwitch* _sideMovement;
+	RotationSwitch* _leftRotation;
+	RotationSwitch* _rightRotation;
+	//forwardSwitch
 };

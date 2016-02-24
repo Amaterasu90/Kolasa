@@ -6,51 +6,59 @@
 #include "ForwardMovementComponent.h"
 #include "GravityMovementComponent.h"
 
-void UGravityMovementComponent::SetForward(MoveSwitch * forward){
-	_forwardMovement = forward;
+void UGravityMovementComponent::SetBlockForward(MoveSwitch& forward){
+	_forwardMovement = &forward;
 }
 
 void UGravityMovementComponent::BeginPlay() {
 	MoveSwitch::Activate();
+	FVector gravityDirection = (-UpdatedComponent->GetUpVector()).GetClampedToMaxSize(1.0f);
+	this->SetDirection(gravityDirection);
 }
 
-void UGravityMovementComponent::Move(FVector value, float DeltaTime){
-	if (MoveSwitch::IsActive())
-		if (!value.IsNearlyZero()) {
-			SafeMoveUpdatedComponent(value, UpdatedComponent->GetComponentRotation(), true, CollisionHit);
-		}
-
-	if (CollisionHit.IsValidBlockingHit()) {
+void UGravityMovementComponent::ManageBlockMove(FHitResult& result) {
+	if (result.IsValidBlockingHit()) {
 		_forwardMovement->Activate();
-		//RotateOrtogonalToPlane(CollisionHit);
+		_sideMovement->Activate();
 	}
 	else {
 		_forwardMovement->Deactivate();
+		_sideMovement->Deactivate();
 	}
 }
 
-void UGravityMovementComponent::RotateOrtogonalToPlane(FHitResult & OutHit) {
-	FVector normalToPlane = OutHit.ImpactNormal;
-	FVector forwardActor = UpdatedComponent->GetForwardVector();
-	FVector rightActor = UpdatedComponent->GetRightVector();
-	FVector downActor = -UpdatedComponent->GetUpVector();
+void UGravityMovementComponent::Move(FVector value){
+	FHitResult collisionHit;
+	if (MoveSwitch::IsActive())
+		if (!value.IsNearlyZero()) {
+			SafeMoveUpdatedComponent(value, UpdatedComponent->GetComponentRotation(), true, collisionHit);
+		}
 
-	FVector crossDownAndRight = UKismetMathLibrary::Cross_VectorVector(downActor, rightActor);
-	FVector newRight = UKismetMathLibrary::Cross_VectorVector(normalToPlane, crossDownAndRight);
+	UpdateDirection();
 
-	FRotator newRotation = UKismetMathLibrary::MakeRotationFromAxes(forwardActor, newRight, normalToPlane);
-
-	Direction = newRotation.Vector();
-	Direction.Normalize();
-
-	UpdatedComponent->SetRelativeRotation(newRotation);
+	ManageBlockMove(collisionHit);
 }
 
-FVector UGravityMovementComponent::GetDisplacement(float DeltaTime){
-	FVector updateMove = -UpdatedComponent->GetUpVector();
-	return updateMove.GetClampedToMaxSize(1.0f) * DeltaTime * ForwardFactor;
+void UGravityMovementComponent::UpdateDirection() {
+	FVector gravityDirection = (-UpdatedComponent->GetUpVector()).GetClampedToMaxSize(1.0f);
+	SetDirection(gravityDirection);
 }
 
 void UGravityMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	FVector desiredStepMove = this->GetDisplacement(DeltaTime);
+	Move(desiredStepMove);
+}
+
+void UGravityMovementComponent::SetBlockSide(MoveSwitch& side){
+	_sideMovement = &side;
+}
+
+void UGravityMovementComponent::SetBlockLeft(RotationSwitch& left){
+	_leftRotation = &left;
+}
+
+void UGravityMovementComponent::SetBlockRight(RotationSwitch& right){
+	_rightRotation = &right;
 }

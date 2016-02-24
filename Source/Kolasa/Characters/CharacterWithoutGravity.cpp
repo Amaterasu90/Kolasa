@@ -30,7 +30,7 @@ void ACharacterWithoutGravity::InitializeAnimationBlueprint(TCHAR* animBlueprint
 	//must static loading
 	static ConstructorHelpers::FObjectFinder<UAnimBlueprint> animContainer(animBlueprintPath);
 	if (animContainer.Succeeded()) {
-		Mesh->AnimBlueprintGeneratedClass = (UAnimBlueprintGeneratedClass*)animContainer.Object->GetAnimBlueprintGeneratedClass();
+		Mesh->AnimClass = (UAnimBlueprintGeneratedClass*)animContainer.Object->GetAnimBlueprintGeneratedClass();
 	}
 }
 
@@ -39,23 +39,12 @@ void ACharacterWithoutGravity::InitializeMovementComponent(){
 	ForwardMovementComponent->UpdatedComponent = RootComponent;
 	GravityMovementComponent = CreateDefaultSubobject<UGravityMovementComponent>("GravityComponent");
 	GravityMovementComponent->UpdatedComponent = RootComponent;
+	HorizontalMovementComponent = CreateDefaultSubobject<USideMovementComponent>("HorizontalComponent");
+	HorizontalMovementComponent->UpdatedComponent = RootComponent;
 	RightMovementComponent = CreateDefaultSubobject<URightMovementComponent>("RightComponent");
 	RightMovementComponent->UpdatedComponent = RootComponent;
 	LeftMovementComponent = CreateDefaultSubobject<ULeftMovementComponent>("LeftComponent");
 	LeftMovementComponent->UpdatedComponent = RootComponent;
-}
-
-void ACharacterWithoutGravity::InitializeForwardTrace(){
-	ForwardTrace = CreateDefaultSubobject<UArrowComponent>("ForwardTrace");
-	ForwardTrace->SetRelativeLocation(ACharacterWithoutGravity::DefaultTraceLocation);
-	ForwardTrace->AttachTo(RootComponent);
-}
-
-void ACharacterWithoutGravity::InitializeDownTrace(){
-	DownTrace = CreateDefaultSubobject<UArrowComponent>("DownTrace");
-	DownTrace->SetRelativeLocation(ACharacterWithoutGravity::DefaultTraceLocation);
-	DownTrace->AddRelativeRotation(FRotator(-90.0f, 0.0f, 0.0f));
-	DownTrace->AttachTo(RootComponent);
 }
 
 void ACharacterWithoutGravity::InitializeRightTrace() {
@@ -81,7 +70,8 @@ void ACharacterWithoutGravity::EventMoveRight(float AxisValue){
 	FRotator UpdateRotator = GetYawRotator();
 	FVector RightVector = GetActorRightVector();
 	RightVector = RunnerMath::GetCleared(RightVector, 0.01f);
-	RightMovementComponent->AddInputVector(RightVector * AxisValue * 100.0f);
+	if(AxisValue != 0.0f)
+		HorizontalMovementComponent->AddInputVector(RightVector * AxisValue);
 }
 
 ACharacterWithoutGravity::ACharacterWithoutGravity(TCHAR * skeletalMeshPath, TCHAR * animBlueprintPath)
@@ -93,10 +83,8 @@ ACharacterWithoutGravity::ACharacterWithoutGravity(TCHAR * skeletalMeshPath, TCH
 	InitializeCamera();
 	InitializeAnimationClass(animBlueprintPath);
 	InitializeAnimationBlueprint(animBlueprintPath);
-	InitializeDownTrace();
-	InitializeForwardTrace();
-	InitializeRightTrace();
 	InitializeLeftTrace();
+	InitializeRightTrace();
 }
 
 void ACharacterWithoutGravity::InitializeStaticMesh(TCHAR* skeletalMeshPath) {
@@ -128,33 +116,27 @@ void ACharacterWithoutGravity::InitializeCamera()
 // Called when the game starts or when spawned
 void ACharacterWithoutGravity::BeginPlay(){
 	Super::BeginPlay();
-	ForwardMovementComponent->SetForwardFactor(forwardFactor);
-	GravityMovementComponent->SetForwardFactor(gravityFactor);
-	RightMovementComponent->SetForwardFactor(rightFactor);
-	LeftMovementComponent->SetForwardFactor(leftFactor);
+	ForwardMovementComponent->SetMoveFactor(forwardFactor);
+	GravityMovementComponent->SetMoveFactor(gravityFactor);
 	
-	ForwardMovementComponent->SetDown(GravityMovementComponent);
-	GravityMovementComponent->SetForward(ForwardMovementComponent);
+	ForwardMovementComponent->SetBlockDown(*GravityMovementComponent);
+	GravityMovementComponent->SetBlockForward(*ForwardMovementComponent);
+	GravityMovementComponent->SetBlockSide(*HorizontalMovementComponent);
 	
-	RightMovementComponent->SetDown(GravityMovementComponent);
-	RightMovementComponent->SetLeft(LeftMovementComponent);
-	RightMovementComponent->SetLeftHit(LeftMovementComponent);
-	
-	LeftMovementComponent->SetDown(GravityMovementComponent);
-	LeftMovementComponent->SetRight(RightMovementComponent);
-	LeftMovementComponent->SetHitRight(RightMovementComponent);
-
-	RayProvider forward(ForwardTrace);
-	ForwardMovementComponent->SetScanRay(forward);
-
-	RayProvider down(DownTrace);
-	GravityMovementComponent->SetScanRay(down);
+	RightMovementComponent->SetDown(*GravityMovementComponent);
+	RightMovementComponent->SetOppositeSiteInterface(*LeftMovementComponent);
+	RightMovementComponent->SetSideMovementComponent(*HorizontalMovementComponent);
 
 	RayProvider right(RightTrace);
 	RightMovementComponent->SetScanRay(right);
 
+	LeftMovementComponent->SetDown(*GravityMovementComponent);
+	LeftMovementComponent->SetOppositeSiteInterface(*RightMovementComponent);
+	LeftMovementComponent->SetSideMovementComponent(*HorizontalMovementComponent);
+
 	RayProvider left(LeftTrace);
 	LeftMovementComponent->SetScanRay(left);
+	
 }
 
 // Called every frame

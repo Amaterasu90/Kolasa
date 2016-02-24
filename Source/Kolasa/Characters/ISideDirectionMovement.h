@@ -5,8 +5,8 @@
 /**
  * 
  */
-class KOLASA_API IHitable
+class KOLASA_API ISideDirectionMovement
 {
 public:
-	virtual FHitResult GetRayHit() = 0;
+	virtual FVector GetDirection() = 0;
 };

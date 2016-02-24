@@ -7,23 +7,18 @@
 #include "ForwardMovementComponent.h"
 
 void UForwardMovementComponent::BeginPlay() {
-	Direction = UpdatedComponent->GetForwardVector();
-	counter = 0.0f;
+	SetDirection(UpdatedComponent->GetForwardVector());
 	//ActivateMove();
 	DeactivateMove();
 }
 
-void UForwardMovementComponent::Move(FVector value, float DeltaTime){
+void UForwardMovementComponent::Move(FVector value){
+	FHitResult collisionHit;
 	if (MoveSwitch::IsActive()) {
 		if (!value.IsNearlyZero()) {
-			SafeMoveUpdatedComponent(value, UpdatedComponent->GetComponentRotation(), true, CollisionHit);
+			SafeMoveUpdatedComponent(value, UpdatedComponent->GetComponentRotation(), true, collisionHit);
 		}
 	}
-}
-
-void UForwardMovementComponent::UpdateDirection(FRotator rotation) {
-	Direction = rotation.Vector();
-	Direction.Normalize();
 }
 
 void UForwardMovementComponent::DeactivateMove(){
@@ -38,39 +33,15 @@ void UForwardMovementComponent::ActivateMove(){
 	}
 }
 
-void UForwardMovementComponent::RotateOrtogonalToPlane(FHitResult & InHit) {
-	FRotator newRotation = GetOrtogonalToPlane(InHit);
-
-	Direction = newRotation.Vector();
-	Direction.Normalize();
-	UpdatedComponent->SetRelativeRotation(newRotation);
-}
-
-FVector UForwardMovementComponent::GetDisplacement(float DeltaTime) {
-	return Direction * DeltaTime * ForwardFactor;
-}
-
-
-FRotator UForwardMovementComponent::GetOrtogonalToPlane(FHitResult & InHit){
-	FVector normalToPlane = RunnerMath::GetCleared(InHit.ImpactNormal,0.01f);
-	FVector forwardActor = RunnerMath::GetCleared(UpdatedComponent->GetForwardVector(),0.01f);
-	FVector upActor = RunnerMath::GetCleared(UpdatedComponent->GetUpVector(),0.01f);
-
-	FVector crossForwardAndUp = RunnerMath::GetCleared(UKismetMathLibrary::Cross_VectorVector(forwardActor, upActor),0.01f);
-	FVector newForward = RunnerMath::GetCleared(UKismetMathLibrary::Cross_VectorVector(normalToPlane, crossForwardAndUp),0.01f);
-	FVector newRight = RunnerMath::GetCleared(UKismetMathLibrary::Cross_VectorVector(normalToPlane, newForward),0.01f);
-
-	FVector newUp = RunnerMath::GetCleared(normalToPlane,0.01f);
-
-	return UKismetMathLibrary::MakeRotationFromAxes(newForward, newRight, newUp);
-}
-
 void UForwardMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	FVector desiredStepMove = GetDisplacement(DeltaTime);
+	Move(desiredStepMove);
 }
 
-void UForwardMovementComponent::SetDown(MoveSwitch* down){
-	_downMovement = down;
+void UForwardMovementComponent::SetBlockDown(MoveSwitch& down){
+	_downMovement = &down;
 }
 
 
