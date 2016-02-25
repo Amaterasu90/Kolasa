@@ -20,6 +20,8 @@ public:
 	float scanArmLenght = 100.0f;
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "10.0"))
 	float smoothClimbFactor = 1.0f;
+	UPROPERTY(EditAnywhere, Category = "Debug")
+	bool bTraceVisibilty = false;
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 	FHitResult GetRotationRayHit();

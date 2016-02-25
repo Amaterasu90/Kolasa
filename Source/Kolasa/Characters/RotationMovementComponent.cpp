@@ -29,10 +29,20 @@ FHitResult URotationMovementComponent::GetRotationRayHit() {
 	FVector currentLocation = GetRayBegin();
 	FVector scanArm = GetScanArm(currentLocation);
 
-	TArray<AActor*> ignore;
 	FHitResult result;
-	UKismetSystemLibrary::LineTraceSingle_NEW(this, currentLocation, scanArm, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, result, true);
 
+	if (!this->bTraceVisibilty) {
+		static FName FireTraceIdent = FName(TEXT("Rotation Trace"));
+		FCollisionQueryParams TraceParams(FireTraceIdent, true);
+		TraceParams.bTraceAsyncScene = true;
+
+		GetWorld()->LineTraceSingleByChannel(result, currentLocation, scanArm, ECollisionChannel::ECC_Visibility, TraceParams);
+	}
+	else
+	{
+		TArray<AActor*> ignore;
+		UKismetSystemLibrary::LineTraceSingle_NEW(this, currentLocation, scanArm, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ignore, EDrawDebugTrace::ForDuration, result, true);
+	}
 	return result;
 }
 
