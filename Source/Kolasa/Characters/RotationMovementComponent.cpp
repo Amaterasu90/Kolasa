@@ -89,27 +89,13 @@ float URotationMovementComponent::CalcEndIteration(float oldRoll, float newRoll)
 }
 
 void URotationMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float DeltaTime){
-	FRotator clampedCurrent = UpdatedComponent->GetComponentRotation();
 	MoveSwitch* downMovement = GetDownInterface();
 	RotationSwitch* otherSiteRotation = GetOtherInterface();
-	if (InHit.IsValidBlockingHit()) {
-		downMovement->Deactivate();
-		otherSiteRotation->Deactivate();
-		newRotation = GetOrtogonalToPlane(InHit);
-	}
+	CalcNewRotation(InHit, *downMovement, *otherSiteRotation);
 
-	float end = CalcEndIteration(clampedCurrent.Roll, newRotation.Roll);
-	if (FMath::Abs(counter) < end && newRotation != FRotator::ZeroRotator) {
-		UpdatedComponent->SetRelativeRotation(FRotator(newRotation.Pitch, newRotation.Yaw, clampedCurrent.Roll + counter));
-		counter += CalcIterationStep(clampedCurrent.Roll, newRotation.Roll, DeltaTime);
-	}
-	else if (counter != 0.0f) {
-		UpdatedComponent->SetRelativeRotation(newRotation);
-		downMovement->Activate();
-		counter = 0.0f;
-		newRotation = FRotator::ZeroRotator;
-		RotationSwitch::EndSmootRotation();
-	}
+	bool durningRotation = SmoothRotate(DeltaTime);
+
+	FinalizeRotate(!durningRotation, *downMovement);
 
 	if (RotationSwitch::IsDurningRotation())
 	{
@@ -153,4 +139,36 @@ FRotator URotationMovementComponent::GetOrtogonalToPlane(FHitResult & InHit) {
 	FVector newUp = RunnerMath::GetCleared(normalToPlane, 0.01f);
 
 	return UKismetMathLibrary::MakeRotationFromAxes(newForward, newRight, newUp);
+}
+
+void URotationMovementComponent::CalcNewRotation(FHitResult & hit, MoveSwitch& down, RotationSwitch& otherSite){
+	if (hit.IsValidBlockingHit()) {
+		down.Deactivate();
+		otherSite.Deactivate();
+		newRotation = GetOrtogonalToPlane(hit);
+	}
+}
+
+bool URotationMovementComponent::SmoothRotate(float DeltaTime)
+{
+	FRotator clampedCurrent = UpdatedComponent->GetComponentRotation();
+	float end = CalcEndIteration(clampedCurrent.Roll, newRotation.Roll);
+	bool condition = FMath::Abs(counter) < end && newRotation != FRotator::ZeroRotator;
+	
+	if (condition) {
+		UpdatedComponent->SetRelativeRotation(FRotator(newRotation.Pitch, newRotation.Yaw, clampedCurrent.Roll + counter));
+		counter += CalcIterationStep(clampedCurrent.Roll, newRotation.Roll, DeltaTime);
+	}
+	
+	return condition;
+}
+
+void URotationMovementComponent::FinalizeRotate(bool isReady, MoveSwitch& downMovement){
+	if (isReady && counter != 0.0f) {
+		UpdatedComponent->SetRelativeRotation(newRotation);
+		downMovement.Activate();
+		counter = 0.0f;
+		newRotation = FRotator::ZeroRotator;
+		RotationSwitch::EndSmootRotation();
+	}
 }

@@ -49,4 +49,7 @@ private:
 	FVector lastHitLocation;
 	float CalcEndIteration(float oldRoll, float newRoll);
 	float CalcIterationStep(float oldRoll, float newRoll, float deltaTime);
+	void CalcNewRotation(FHitResult& hit, MoveSwitch& down, RotationSwitch& otherSite);
+	bool SmoothRotate(float DeltaTime);
+	void FinalizeRotate(bool isReady, MoveSwitch& downMovement);
 };
