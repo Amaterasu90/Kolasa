@@ -16,7 +16,7 @@ class KOLASA_API USideMovementComponent : public UPawnMovementComponent, public 
 	GENERATED_BODY()
 private:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAcces = "true"))
-		float MoveFactor = 1000.0f;
+	float MoveFactor = 1000.0f;
 	FVector DesiredMovementThisFrame;
 public:
 	virtual FVector GetDirection() override;

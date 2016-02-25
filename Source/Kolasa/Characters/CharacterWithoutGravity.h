@@ -8,6 +8,7 @@
 #include "RightMovementComponent.h"
 #include "LeftMovementComponent.h"
 #include "SideMovementComponent.h"
+#include "SkeletalOrientationComponent.h"
 #include "CharacterWithoutGravity.generated.h"
 
 UCLASS()
@@ -43,8 +44,11 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	USideMovementComponent* HorizontalMovementComponent;
 
-	UPROPERTY(EDitDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly)
 	ULeftMovementComponent* LeftMovementComponent;
+
+	UPROPERTY(EditDefaultsOnly)
+	USkeletalOrientationComponent* SkeletalComponent;
 
 	UArrowComponent* DownTrace;
 	UArrowComponent* ForwardTrace;

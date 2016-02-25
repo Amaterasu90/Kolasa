@@ -45,6 +45,8 @@ void ACharacterWithoutGravity::InitializeMovementComponent(){
 	RightMovementComponent->UpdatedComponent = RootComponent;
 	LeftMovementComponent = CreateDefaultSubobject<ULeftMovementComponent>("LeftComponent");
 	LeftMovementComponent->UpdatedComponent = RootComponent;
+	SkeletalComponent = CreateDefaultSubobject<USkeletalOrientationComponent>("SkeletalOrientationComponent");
+	SkeletalComponent->UpdatedComponent = Mesh;
 }
 
 void ACharacterWithoutGravity::InitializeRightTrace() {
@@ -67,24 +69,12 @@ FRotator ACharacterWithoutGravity::GetYawRotator() {
 }
 
 void ACharacterWithoutGravity::EventMoveRight(float AxisValue){
-	FRotator UpdateRotator = GetYawRotator();
-	FVector RightVector = GetActorRightVector();
-	RightVector = RunnerMath::GetCleared(RightVector, 0.01f);
+	
 	if (AxisValue != 0.0f) {
-		HorizontalMovementComponent->AddInputVector(RightVector * AxisValue);
-		FRotator currentRotation = Mesh->RelativeRotation;
-		currentRotation.Yaw = UKismetMathLibrary::ClampAngle(currentRotation.Yaw + AxisValue*MeshRotationFactor, startRotation.Yaw - 45.0f, startRotation.Yaw + 45.0f);
-		Mesh->SetRelativeRotation(currentRotation);
-	}
-
-	if (FMath::IsNearlyZero(AxisValue,0.01f)) {
-		float rotationDistance = startRotation.Yaw - Mesh->RelativeRotation.Clamp().Yaw;
-		float step = MeshRotationFactor*UKismetMathLibrary::SignOfFloat(rotationDistance);
-		if (FMath::Abs(rotationDistance) > FMath::Abs(step)) {
-			Mesh->RelativeRotation.Yaw = Mesh->RelativeRotation.Clamp().Yaw + step;
-		}
-		else
-			Mesh->RelativeRotation.Yaw = startRotation.Yaw;
+		FVector RightVector = GetActorRightVector();
+		HorizontalMovementComponent->AddInputVector(RunnerMath::GetCleared(RightVector, 0.01f) * AxisValue);
+		
+		this->SkeletalComponent->AddInputAxis(AxisValue);
 	}
 }
 
@@ -98,12 +88,12 @@ void ACharacterWithoutGravity::EventMeshPitchRotation(float AxisValue){
 ACharacterWithoutGravity::ACharacterWithoutGravity(TCHAR * skeletalMeshPath, TCHAR * animBlueprintPath)
 {
 	InitializeCapsule();
-	InitializeMovementComponent();
 	InitializeStaticMesh(skeletalMeshPath);
 	InitializeSpringArm();
 	InitializeCamera();
 	InitializeAnimationClass(animBlueprintPath);
 	InitializeAnimationBlueprint(animBlueprintPath);
+	InitializeMovementComponent();
 	InitializeLeftTrace();
 	InitializeRightTrace();
 }
@@ -158,6 +148,7 @@ void ACharacterWithoutGravity::BeginPlay(){
 
 	startRotation = Mesh->RelativeRotation;
 	
+	this->SkeletalComponent->SetRotationBalance(Mesh->RelativeRotation);
 }
 
 // Called every frame
