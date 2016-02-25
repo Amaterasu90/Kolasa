@@ -41,7 +41,7 @@ void UForwardMovementComponent::TickComponent(float DeltaTime, enum ELevelTick T
 }
 
 void UForwardMovementComponent::SetBlockDown(MoveSwitch& down){
-	_downMovement = &down;
+	downMovement = &down;
 }
 
 

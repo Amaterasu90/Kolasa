@@ -70,8 +70,29 @@ void ACharacterWithoutGravity::EventMoveRight(float AxisValue){
 	FRotator UpdateRotator = GetYawRotator();
 	FVector RightVector = GetActorRightVector();
 	RightVector = RunnerMath::GetCleared(RightVector, 0.01f);
-	if(AxisValue != 0.0f)
+	if (AxisValue != 0.0f) {
 		HorizontalMovementComponent->AddInputVector(RightVector * AxisValue);
+		FRotator currentRotation = Mesh->RelativeRotation;
+		currentRotation.Yaw = UKismetMathLibrary::ClampAngle(currentRotation.Yaw + AxisValue*MeshRotationFactor, startRotation.Yaw - 45.0f, startRotation.Yaw + 45.0f);
+		Mesh->SetRelativeRotation(currentRotation);
+	}
+
+	if (FMath::IsNearlyZero(AxisValue,0.01f)) {
+		float rotationDistance = startRotation.Yaw - Mesh->RelativeRotation.Clamp().Yaw;
+		float step = MeshRotationFactor*UKismetMathLibrary::SignOfFloat(rotationDistance);
+		if (FMath::Abs(rotationDistance) > FMath::Abs(step)) {
+			Mesh->RelativeRotation.Yaw = Mesh->RelativeRotation.Clamp().Yaw + step;
+		}
+		else
+			Mesh->RelativeRotation.Yaw = startRotation.Yaw;
+	}
+}
+
+void ACharacterWithoutGravity::EventMeshPitchRotation(float AxisValue){
+	FRotator currentRotation = Mesh->RelativeRotation;
+	if (AxisValue != 0.0f)
+		currentRotation = currentRotation + FRotator(0.0f, AxisValue,0.0f);
+	Mesh->SetRelativeRotation(currentRotation);
 }
 
 ACharacterWithoutGravity::ACharacterWithoutGravity(TCHAR * skeletalMeshPath, TCHAR * animBlueprintPath)
@@ -116,8 +137,6 @@ void ACharacterWithoutGravity::InitializeCamera()
 // Called when the game starts or when spawned
 void ACharacterWithoutGravity::BeginPlay(){
 	Super::BeginPlay();
-	ForwardMovementComponent->SetMoveFactor(forwardFactor);
-	GravityMovementComponent->SetMoveFactor(gravityFactor);
 	
 	ForwardMovementComponent->SetBlockDown(*GravityMovementComponent);
 	GravityMovementComponent->SetBlockForward(*ForwardMovementComponent);
@@ -136,6 +155,8 @@ void ACharacterWithoutGravity::BeginPlay(){
 
 	RayProvider left(LeftTrace);
 	LeftMovementComponent->SetScanRay(left);
+
+	startRotation = Mesh->RelativeRotation;
 	
 }
 
@@ -150,6 +171,7 @@ void ACharacterWithoutGravity::SetupPlayerInputComponent(class UInputComponent* 
 	Super::SetupPlayerInputComponent(InputComponent);
 
 	InputComponent->BindAxis("MoveRight", this, &ACharacterWithoutGravity::EventMoveRight);
+	InputComponent->BindAxis("MeshPitch", this, &ACharacterWithoutGravity::EventMeshPitchRotation);
 }
 
 UPawnMovementComponent * ACharacterWithoutGravity::GetMovementComponent() const

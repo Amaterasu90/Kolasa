@@ -12,7 +12,8 @@ UCLASS()
 class KOLASA_API UForwardMovementComponent : public UDirectionMovementComponent
 {
 	GENERATED_BODY()
-
+private:
+	MoveSwitch* downMovement;
 public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
@@ -21,6 +22,4 @@ public:
 	void ActivateMove();
 protected:
 	virtual void Move(FVector value);
-private:
-	MoveSwitch* _downMovement;
 };

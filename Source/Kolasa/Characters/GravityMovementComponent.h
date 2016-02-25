@@ -14,7 +14,11 @@ UCLASS()
 class KOLASA_API UGravityMovementComponent : public UDirectionMovementComponent
 {
 	GENERATED_BODY()
-	
+private:
+	MoveSwitch* forwardMovement;
+	MoveSwitch* sideMovement;
+	RotationSwitch* leftRotation;
+	RotationSwitch* rightRotation;
 public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
@@ -27,9 +31,5 @@ protected:
 private:
 	void ManageBlockMove(FHitResult& result);
 	void UpdateDirection();
-	MoveSwitch* _forwardMovement;
-	MoveSwitch* _sideMovement;
-	RotationSwitch* _leftRotation;
-	RotationSwitch* _rightRotation;
 	//forwardSwitch
 };

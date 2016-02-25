@@ -16,6 +16,9 @@ class KOLASA_API ACharacterWithoutGravity : public APawn
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "10.0"))
+	float MeshRotationFactor = 1.0f;
+
 	UPROPERTY(EditAnywhere)
 	UCapsuleComponent* Capsule;
 
@@ -48,15 +51,6 @@ public:
 	UArrowComponent* RightTrace;
 	UArrowComponent* LeftTrace;
 
-	UPROPERTY(EditAnywhere, meta = (ClampMin = "1.0", ClampMax = "10000.0"))
-	float forwardFactor = 500.0f;
-	UPROPERTY(EditAnywhere, meta = (ClampMin = "1.0", ClampMax = "10000.0"))
-	float gravityFactor = 500.0f;
-	/*UPROPERTY(EditAnywhere, meta = (ClampMin = "1.0", ClampMax = "10000.0"))
-	float rightFactor = 500.0f;
-	UPROPERTY(EditAnywhere, meta = (ClampMin = "1.0", ClampMax = "10000.0"))
-	float leftFactor = 500.0f;*/
-
 	// Sets default values for this pawn's properties
 	ACharacterWithoutGravity();
 
@@ -88,8 +82,11 @@ private:
 	void InitializeRightTrace();
 
 	void EventMoveRight(float AxisValue);
+	void EventMeshPitchRotation(float AxisValue);
 	
 	FRotator GetYawRotator();
+
+	FRotator startRotation;
 
 protected:
 	const FVector DefaultTraceLocation = FVector(0.0f, 0.0f, -75.0f);

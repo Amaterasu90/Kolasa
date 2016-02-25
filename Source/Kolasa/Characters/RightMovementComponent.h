@@ -13,6 +13,6 @@ class KOLASA_API URightMovementComponent : public URotationMovementComponent
 {
 	GENERATED_BODY()
 	
-private:
+public:
 	virtual bool IsReadyToEnableScanRotation(FVector right, FVector sideDirection) override;
 };

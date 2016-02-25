@@ -7,7 +7,7 @@
 #include "GravityMovementComponent.h"
 
 void UGravityMovementComponent::SetBlockForward(MoveSwitch& forward){
-	_forwardMovement = &forward;
+	forwardMovement = &forward;
 }
 
 void UGravityMovementComponent::BeginPlay() {
@@ -18,12 +18,12 @@ void UGravityMovementComponent::BeginPlay() {
 
 void UGravityMovementComponent::ManageBlockMove(FHitResult& result) {
 	if (result.IsValidBlockingHit()) {
-		_forwardMovement->Activate();
-		_sideMovement->Activate();
+		forwardMovement->Activate();
+		sideMovement->Activate();
 	}
 	else {
-		_forwardMovement->Deactivate();
-		_sideMovement->Deactivate();
+		forwardMovement->Deactivate();
+		sideMovement->Deactivate();
 	}
 }
 
@@ -52,13 +52,13 @@ void UGravityMovementComponent::TickComponent(float DeltaTime, enum ELevelTick T
 }
 
 void UGravityMovementComponent::SetBlockSide(MoveSwitch& side){
-	_sideMovement = &side;
+	sideMovement = &side;
 }
 
 void UGravityMovementComponent::SetBlockLeft(RotationSwitch& left){
-	_leftRotation = &left;
+	leftRotation = &left;
 }
 
 void UGravityMovementComponent::SetBlockRight(RotationSwitch& right){
-	_rightRotation = &right;
+	rightRotation = &right;
 }

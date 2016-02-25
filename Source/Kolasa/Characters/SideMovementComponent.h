@@ -14,13 +14,12 @@ UCLASS()
 class KOLASA_API USideMovementComponent : public UPawnMovementComponent, public MoveSwitch, public ISideDirectionMovement
 {
 	GENERATED_BODY()
-	
+private:
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAcces = "true"))
+		float MoveFactor = 1000.0f;
+	FVector DesiredMovementThisFrame;
 public:
 	virtual FVector GetDirection() override;
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
-private:
-	UPROPERTY(EditAnywhere, meta = (AllowPrivateAcces = "true"))
-	float MoveFactor = 1000.0f;
-	FVector DesiredMovementThisFrame;
 };

@@ -4,23 +4,23 @@
 #include "RayProvider.h"
 
 RayProvider::RayProvider() {
-	_arrowComponent = NULL;
+	arrowComponent = NULL;
 }
 
 RayProvider::RayProvider(UArrowComponent* arrow){
-	_arrowComponent = arrow;
+	arrowComponent = arrow;
 }
 
 FVector RayProvider::GetLocation(){
-	return _arrowComponent ? _arrowComponent->GetComponentLocation() : FVector::ZeroVector;
+	return arrowComponent ? arrowComponent->GetComponentLocation() : FVector::ZeroVector;
 }
 
 FRotator RayProvider::GetRotation() {
-	return _arrowComponent ? _arrowComponent->GetComponentRotation() : FRotator::ZeroRotator;
+	return arrowComponent ? arrowComponent->GetComponentRotation() : FRotator::ZeroRotator;
 }
 
 FVector RayProvider::GetRelativeLocation(){
-	return _arrowComponent->RelativeLocation;
+	return arrowComponent->RelativeLocation;
 }
 
 RayProvider::~RayProvider(){

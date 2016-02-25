@@ -7,6 +7,8 @@
  */
 class KOLASA_API RayProvider
 {
+private:
+	UArrowComponent* arrowComponent;
 public:
 	RayProvider();
 	RayProvider(UArrowComponent* arrow);
@@ -14,6 +16,4 @@ public:
 	FRotator GetRotation();
 	FVector GetRelativeLocation();
 	~RayProvider();
-private:
-	UArrowComponent* _arrowComponent;
 };
