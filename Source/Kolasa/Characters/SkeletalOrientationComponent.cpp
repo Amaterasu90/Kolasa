@@ -16,10 +16,10 @@ void USkeletalOrientationComponent::TickComponent(float DeltaTime, enum ELevelTi
 		UpdatedComponent->SetRelativeRotation(desiredRotation);
 	}
 	else {
-		float rotationDistance = rotationBalance.Yaw - UpdatedComponent->RelativeRotation.Clamp().Yaw;
+		float rotationDistance = rotationBalance.Clamp().Yaw - UpdatedComponent->RelativeRotation.Clamp().Yaw;
 		float step = SkeletalRotationFactor*UKismetMathLibrary::SignOfFloat(rotationDistance);
 		FHitResult hit;
-		if (FMath::Abs(rotationDistance) > FMath::Abs(step)) {
+		if (step != 0.0f) {
 			UpdatedComponent->RelativeRotation.Yaw = UpdatedComponent->RelativeRotation.Clamp().Yaw + step;
 		}
 		else
