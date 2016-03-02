@@ -5,9 +5,9 @@
 
 FVector RunnerMath::GetCleared(FVector vector, float tolerance) {
 	FVector result;
-	result = FVector((float)FMath::RoundToInt(vector.X),
-		(float)FMath::RoundToInt(vector.Y),
-		(float)FMath::RoundToInt(vector.Z));
+	result = FVector(FMath::IsNearlyZero(vector.X, 0.01f) ? 0.0f : vector.X,
+		FMath::IsNearlyZero(vector.Y, 0.01f) ? 0.0f : vector.Y,
+		FMath::IsNearlyZero(vector.Z, 0.01f) ? 0.0f : vector.Z);
 	return result;
 }
 

@@ -15,4 +15,6 @@ class KOLASA_API URightMovementComponent : public URotationMovementComponent
 	
 public:
 	virtual bool IsReadyToEnableScanRotation(FVector right, FVector sideDirection) override;
+	virtual float CalcIterationStep(float oldRoll, float newRoll, float deltaTime) override;
+	virtual float CalcEndIteration(float oldRoll, float newRoll) override;
 };

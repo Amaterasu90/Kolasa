@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class KOLASA_API UForwardRotationComponent : public UPawnMovementComponent
+class KOLASA_API UForwardRotationComponent : public UPawnMovementComponent, public MoveSwitch
 {
 	GENERATED_BODY()
 public:
@@ -32,6 +32,4 @@ public:
 	FVector GetScanArm(FVector startLocation);
 	void SetScanRay(RayProvider provider);
 	void SetForwardComponent(UForwardMovementComponent& forward);
-	FRotator currentRotation;
-	FVector forwardVector;
 };

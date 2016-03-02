@@ -68,26 +68,6 @@ void URotationMovementComponent::SetDown(MoveSwitch& down) {
 	_downMovement = &down;
 }
 
-float URotationMovementComponent::CalcIterationStep(float oldRoll, float newRoll, float deltaTime) {
-	if (newRoll > 0.0f && oldRoll < 0.0f) {
-		return FMath::Sign(-FMath::Abs(oldRoll + newRoll))*deltaTime*smoothClimbFactor;
-	}
-	else {
-		return FMath::Sign(newRoll - oldRoll)*deltaTime*smoothClimbFactor;
-	}
-	return 0.0f;
-}
-
-float URotationMovementComponent::CalcEndIteration(float oldRoll, float newRoll) {
-	if (newRoll > 0.0f && oldRoll < 0.0f) {
-		return FMath::Abs(-FMath::Abs(oldRoll + newRoll));
-	}
-	else {
-		return FMath::Abs(newRoll - oldRoll);
-	}
-	return 0.0f;
-}
-
 void URotationMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float DeltaTime){
 	MoveSwitch* downMovement = GetDownInterface();
 	RotationSwitch* otherSiteRotation = GetOtherInterface();
@@ -128,17 +108,18 @@ void URotationMovementComponent::SetSideMovementComponent(ISideDirectionMovement
 	this->sideComponent = &sideComponent;
 }
 
+
 FRotator URotationMovementComponent::GetOrtogonalToPlane(FHitResult & InHit) {
-	FVector normalToPlane = RunnerMath::GetCleared(InHit.ImpactNormal, 0.01f);
-	FVector rightActor = RunnerMath::GetCleared(UpdatedComponent->GetRightVector(), 0.01f);
-	FVector upActor = RunnerMath::GetCleared(UpdatedComponent->GetUpVector(), 0.01f);
+	normalToPlane = InHit.ImpactNormal;
+	rightActor = UpdatedComponent->GetRightVector();
+	upActor = UpdatedComponent->GetUpVector();
 
-	FVector crossRightAndUp = RunnerMath::GetCleared(UKismetMathLibrary::Cross_VectorVector(rightActor, upActor), 0.01f);
-	FVector newRight = RunnerMath::GetCleared(UKismetMathLibrary::Cross_VectorVector(normalToPlane, crossRightAndUp), 0.01f);
-	FVector newForward = crossRightAndUp;
-	FVector newUp = RunnerMath::GetCleared(normalToPlane, 0.01f);
+	crossRightAndUp = UKismetMathLibrary::Cross_VectorVector(rightActor, upActor);
+	newRight = UKismetMathLibrary::Cross_VectorVector(normalToPlane, crossRightAndUp);
+	newForward = crossRightAndUp;
+	newUp = normalToPlane;
 
-	return UKismetMathLibrary::MakeRotationFromAxes(newForward, newRight, newUp);
+	return UKismetMathLibrary::MakeRotationFromAxes(newForward, newRight, newUp).Clamp();
 }
 
 void URotationMovementComponent::CalcNewRotation(FHitResult & hit, MoveSwitch& down, RotationSwitch& otherSite){
@@ -151,9 +132,9 @@ void URotationMovementComponent::CalcNewRotation(FHitResult & hit, MoveSwitch& d
 
 bool URotationMovementComponent::SmoothRotate(float DeltaTime)
 {
-	FRotator clampedCurrent = UpdatedComponent->GetComponentRotation();
-	float end = CalcEndIteration(clampedCurrent.Roll, newRotation.Roll);
-	bool condition = FMath::Abs(counter) < end && newRotation != FRotator::ZeroRotator;
+	FRotator clampedCurrent = UpdatedComponent->GetComponentRotation().Clamp();
+	end = CalcEndIteration(clampedCurrent.Roll, newRotation.Roll);
+	bool condition = FMath::Abs(counter) < FMath::Abs(end) && newRotation != FRotator::ZeroRotator;
 	
 	if (condition) {
 		UpdatedComponent->SetRelativeRotation(FRotator(newRotation.Pitch, newRotation.Yaw, clampedCurrent.Roll + counter));

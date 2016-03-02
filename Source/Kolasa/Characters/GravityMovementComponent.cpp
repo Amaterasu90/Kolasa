@@ -17,14 +17,14 @@ void UGravityMovementComponent::BeginPlay() {
 }
 
 void UGravityMovementComponent::ManageBlockMove(FHitResult& result) {
-	if (result.IsValidBlockingHit()) {
+	/*if (result.IsValidBlockingHit()) {
 		forwardMovement->Activate();
 		sideMovement->Activate();
 	}
 	else {
 		forwardMovement->Deactivate();
 		sideMovement->Deactivate();
-	}
+	}*/
 }
 
 void UGravityMovementComponent::Move(FVector value){

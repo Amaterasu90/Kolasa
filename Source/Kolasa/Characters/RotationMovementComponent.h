@@ -17,12 +17,14 @@ class KOLASA_API URotationMovementComponent : public UPawnMovementComponent, pub
 	GENERATED_BODY()
 
 public:
+	FVector normalToPlane, rightActor, upActor, crossRightAndUp, newRight, newForward, newUp;
+	float end;
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "1000.0"))
-		float scanArmLenght = 100.0f;
+	float scanArmLenght = 100.0f;
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "10.0"))
-		float smoothClimbFactor = 1.0f;
+	float smoothClimbFactor = 1.0f;
 	UPROPERTY(EditAnywhere, Category = "Debug")
-		bool bTraceVisibilty = false;
+	bool bTraceVisibilty = false;
 private:
 	RotationSwitch* _oppositeSiteRotation;
 	MoveSwitch* _downMovement;
@@ -50,8 +52,8 @@ protected:
 	FVector GetScanArm(FVector startLocation);
 private:
 	virtual bool IsReadyToEnableScanRotation(FVector right, FVector sideDirection) PURE_VIRTUAL(URotationMovementComponent::IsReadyToEnableScanRotation, { return false; });
-	float CalcEndIteration(float oldRoll, float newRoll);
-	float CalcIterationStep(float oldRoll, float newRoll, float deltaTime);
+	virtual float CalcEndIteration(float oldRoll, float newRoll) PURE_VIRTUAL(URotationMovementComponent::CalcEndIteration, { return 0.0f; });
+	virtual float CalcIterationStep(float oldRoll, float newRoll, float deltaTime) PURE_VIRTUAL(URotationMovementComponent::CalcIterationStep, { return 0.0f; });
 	void CalcNewRotation(FHitResult& hit, MoveSwitch& down, RotationSwitch& otherSite);
 	bool SmoothRotate(float DeltaTime);
 	void FinalizeRotate(bool isReady, MoveSwitch& downMovement);

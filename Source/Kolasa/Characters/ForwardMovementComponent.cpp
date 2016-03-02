@@ -8,8 +8,8 @@
 
 void UForwardMovementComponent::BeginPlay() {
 	SetDirection(UpdatedComponent->GetForwardVector());
-	//ActivateMove();
-	DeactivateMove();
+	ActivateMove();
+	//DeactivateMove();
 }
 
 void UForwardMovementComponent::Move(FVector value){

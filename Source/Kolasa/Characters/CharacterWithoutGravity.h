@@ -53,7 +53,10 @@ public:
 	USkeletalOrientationComponent* SkeletalComponent;
 
 	UPROPERTY(EditDefaultsOnly)
-	UForwardRotationComponent* ForwardRotationComponent;
+	UForwardRotationComponent* ConcaveRotationComponent;
+
+	UPROPERTY(EditDefaultsOnly)
+	UForwardRotationComponent* ConvexRotationComponent;
 
 	UArrowComponent* DownTrace;
 	UArrowComponent* ForwardTrace;
@@ -85,8 +88,8 @@ private:
 	void InitializeAnimationBlueprint(TCHAR* animBlueprintPath);
 	void InitializeMovementComponent();
 	void InitializeForwardTrace();
-	/*void InitializeDownTrace();
-	*/
+	void InitializeDownTrace();
+	
 	void InitializeLeftTrace();
 	void InitializeRightTrace();
 
