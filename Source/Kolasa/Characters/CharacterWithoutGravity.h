@@ -8,6 +8,7 @@
 #include "RightMovementComponent.h"
 #include "LeftMovementComponent.h"
 #include "SideMovementComponent.h"
+#include "ForwardRotationComponent.h"
 #include "SkeletalOrientationComponent.h"
 #include "CharacterWithoutGravity.generated.h"
 
@@ -17,8 +18,9 @@ class KOLASA_API ACharacterWithoutGravity : public APawn
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "10.0"))
-	float MeshRotationFactor = 1.0f;
+
+	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "200.0"))
+	float DownScanRayDistance = 100.0f;
 
 	UPROPERTY(EditAnywhere)
 	UCapsuleComponent* Capsule;
@@ -50,6 +52,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	USkeletalOrientationComponent* SkeletalComponent;
 
+	UPROPERTY(EditDefaultsOnly)
+	UForwardRotationComponent* ForwardRotationComponent;
+
 	UArrowComponent* DownTrace;
 	UArrowComponent* ForwardTrace;
 	UArrowComponent* RightTrace;
@@ -79,8 +84,8 @@ private:
 	void InitializeAnimationClass(TCHAR* animBlueprintPath);
 	void InitializeAnimationBlueprint(TCHAR* animBlueprintPath);
 	void InitializeMovementComponent();
-	/*void InitializeForwardTrace();
-	void InitializeDownTrace();
+	void InitializeForwardTrace();
+	/*void InitializeDownTrace();
 	*/
 	void InitializeLeftTrace();
 	void InitializeRightTrace();

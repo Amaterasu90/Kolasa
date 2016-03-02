@@ -43,10 +43,19 @@ void ACharacterWithoutGravity::InitializeMovementComponent(){
 	HorizontalMovementComponent->UpdatedComponent = RootComponent;
 	RightMovementComponent = CreateDefaultSubobject<URightMovementComponent>("RightComponent");
 	RightMovementComponent->UpdatedComponent = RootComponent;
+	ForwardRotationComponent = CreateDefaultSubobject<UForwardRotationComponent>("ForwardRotationComponent");
+	ForwardRotationComponent->UpdatedComponent = RootComponent;
 	LeftMovementComponent = CreateDefaultSubobject<ULeftMovementComponent>("LeftComponent");
 	LeftMovementComponent->UpdatedComponent = RootComponent;
 	SkeletalComponent = CreateDefaultSubobject<USkeletalOrientationComponent>("SkeletalOrientationComponent");
 	SkeletalComponent->UpdatedComponent = Mesh;
+}
+
+void ACharacterWithoutGravity::InitializeForwardTrace(){
+	ForwardTrace = CreateDefaultSubobject<UArrowComponent>("ForwardTrace");
+	ForwardTrace->SetRelativeLocation(ACharacterWithoutGravity::DefaultTraceLocation);
+	ForwardTrace->AddRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
+	ForwardTrace->AttachTo(RootComponent);
 }
 
 void ACharacterWithoutGravity::InitializeRightTrace() {
@@ -96,6 +105,7 @@ ACharacterWithoutGravity::ACharacterWithoutGravity(TCHAR * skeletalMeshPath, TCH
 	InitializeMovementComponent();
 	InitializeLeftTrace();
 	InitializeRightTrace();
+	InitializeForwardTrace();
 }
 
 void ACharacterWithoutGravity::InitializeStaticMesh(TCHAR* skeletalMeshPath) {
@@ -146,9 +156,13 @@ void ACharacterWithoutGravity::BeginPlay(){
 	RayProvider left(LeftTrace);
 	LeftMovementComponent->SetScanRay(left);
 
+	RayProvider forward(ForwardTrace);
+	ForwardRotationComponent->SetScanRay(forward);
+
 	startRotation = Mesh->RelativeRotation;
 	
 	this->SkeletalComponent->SetRotationBalance(Mesh->RelativeRotation);
+	ForwardRotationComponent->SetForwardComponent(*ForwardMovementComponent);
 }
 
 // Called every frame

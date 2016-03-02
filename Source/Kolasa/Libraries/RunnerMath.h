@@ -9,5 +9,6 @@ class KOLASA_API RunnerMath
 {
 public:
 	static FVector GetCleared(FVector vector, float tolerance);
+	static FRotator GetCleared(FRotator rotator);
 	static FRotator Align(FRotator value);
 };

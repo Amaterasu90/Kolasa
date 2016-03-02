@@ -5,9 +5,17 @@
 
 FVector RunnerMath::GetCleared(FVector vector, float tolerance) {
 	FVector result;
-	result = FVector(FMath::IsNearlyZero(vector.X, 0.01f) ? 0.0f : vector.X,
-		FMath::IsNearlyZero(vector.Y, 0.01f) ? 0.0f : vector.Y,
-		FMath::IsNearlyZero(vector.Z, 0.01f) ? 0.0f : vector.Z);
+	result = FVector((float)FMath::RoundToInt(vector.X),
+		(float)FMath::RoundToInt(vector.Y),
+		(float)FMath::RoundToInt(vector.Z));
+	return result;
+}
+
+FRotator RunnerMath::GetCleared(FRotator rotator) {
+	FRotator result;
+	result = FRotator((float)FMath::RoundToInt(rotator.Pitch),
+		(float)FMath::RoundToInt(rotator.Yaw),
+		(float)FMath::RoundToInt(rotator.Roll));
 	return result;
 }
 
