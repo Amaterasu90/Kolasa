@@ -18,7 +18,7 @@ float URightMovementComponent::CalcEndIteration(float oldRoll, float newRoll) {
 	return newRoll - oldRoll;
 }
 
-void URightMovementComponent::SmoothRotate(float DeltaTime)
+void URightMovementComponent::SmoothRotate(float DeltaTime, RotationSwitch& down)
 {
 	FRotator current = UpdatedComponent->GetComponentRotation();
 	if (!(RunnerMath::GetCleared(newRotation) - current).IsNearlyZero(0.01f)) {
@@ -31,10 +31,11 @@ void URightMovementComponent::SmoothRotate(float DeltaTime)
 		}
 		counter += stepCounting;
 	}
-	else if ((newRotation - current).IsNearlyZero(0.01f)) {
+	else if ((newRotation - current).IsNearlyZero(0.01f) && !FMath::IsNearlyZero(counter)) {
 		UpdatedComponent->SetRelativeRotation(RunnerMath::GetCleared(newRotation));
 		counter = 0.0f;
 		stepCounting = 0.0f;
+		down.Activate();
 		RotationSwitch::EndSmootRotation();
 	}
 }

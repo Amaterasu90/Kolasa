@@ -7,7 +7,7 @@
 #include "ForwardRotationComponent.h"
 
 void UForwardRotationComponent::BeginPlay() {
-	RotationSwitch::Deactivate();
+	RotationSwitch::Activate();
 }
 
 void UForwardRotationComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) {
@@ -23,7 +23,7 @@ void UForwardRotationComponent::TickComponent(float DeltaTime, enum ELevelTick T
 			FVector backNewForward = UKismetMathLibrary::Cross_VectorVector(backNormal, backNewRight);
 			FVector backNewUp = backNormal;
 			backNewRotation = UKismetMathLibrary::MakeRotationFromAxes(backNewForward, -backNewRight, backNewUp);
-			UpdatedComponent->SetRelativeRotation(backNewRotation);
+			UpdatedComponent->SetRelativeRotation(RunnerMath::GetCleared(backNewRotation));
 			forwardComponent->SetDirection(backNewForward);
 		}
 		else if (!backHit.IsValidBlockingHit() && frontHit.IsValidBlockingHit()) {
@@ -35,7 +35,7 @@ void UForwardRotationComponent::TickComponent(float DeltaTime, enum ELevelTick T
 			FVector frontNewForward = UKismetMathLibrary::Cross_VectorVector(frontNormal, frontNewRight);
 			FVector frontNewUp = frontNormal;
 			frontNewRotation = UKismetMathLibrary::MakeRotationFromAxes(frontNewForward, -frontNewRight, frontNewUp);
-			UpdatedComponent->SetRelativeRotation(frontNewRotation);
+			UpdatedComponent->SetRelativeRotation(RunnerMath::GetCleared(frontNewRotation));
 			forwardComponent->SetDirection(frontNewForward);
 		}
 	}

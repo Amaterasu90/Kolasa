@@ -43,8 +43,8 @@ void ACharacterWithoutGravity::InitializeMovementComponent(){
 	HorizontalMovementComponent->UpdatedComponent = RootComponent;
 	RightMovementComponent = CreateDefaultSubobject<URightMovementComponent>("RightComponent");
 	RightMovementComponent->UpdatedComponent = RootComponent;
-	/*ConvexRotationComponent = CreateDefaultSubobject<UForwardRotationComponent>("ConvexRotationComponent");
-	ConvexRotationComponent->UpdatedComponent = RootComponent;*/
+	ConvexRotationComponent = CreateDefaultSubobject<UForwardRotationComponent>("ConvexRotationComponent");
+	ConvexRotationComponent->UpdatedComponent = RootComponent;
 	LeftMovementComponent = CreateDefaultSubobject<ULeftMovementComponent>("LeftComponent");
 	LeftMovementComponent->UpdatedComponent = RootComponent;
 	SkeletalComponent = CreateDefaultSubobject<USkeletalOrientationComponent>("SkeletalOrientationComponent");
@@ -52,15 +52,15 @@ void ACharacterWithoutGravity::InitializeMovementComponent(){
 }
 
 void ACharacterWithoutGravity::InitializeDownTrace(){
-	/*BackDownTrace = CreateDefaultSubobject<UArrowComponent>("BackDownTrace");
-	BackDownTrace->SetRelativeLocation(-FVector(Capsule->GetScaledCapsuleRadius(),0.0f,0.0f));
+	BackDownTrace = CreateDefaultSubobject<UArrowComponent>("BackDownTrace");
+	BackDownTrace->SetRelativeLocation(-FVector(2.0f*Capsule->GetScaledCapsuleRadius(),0.0f,0.0f));
 	BackDownTrace->RelativeRotation = FRotator(270.0f, 0.0f, 0.0f);
 	BackDownTrace->AttachTo(RootComponent);
 
 	FrontDownTrace = CreateDefaultSubobject<UArrowComponent>("FrontDownTrace");
-	FrontDownTrace->SetRelativeLocation(FVector(Capsule->GetScaledCapsuleRadius(), 0.0f, 0.0f));
+	FrontDownTrace->SetRelativeLocation(FVector(2.0f*Capsule->GetScaledCapsuleRadius(), 0.0f, 0.0f));
 	FrontDownTrace->RelativeRotation = FRotator(270.0f, 0.0f, 0.0f);
-	FrontDownTrace->AttachTo(RootComponent);*/
+	FrontDownTrace->AttachTo(RootComponent);
 }
 
 void ACharacterWithoutGravity::InitializeRightTrace() {
@@ -147,19 +147,27 @@ void ACharacterWithoutGravity::BeginPlay(){
 	GravityMovementComponent->SetBlockSide(*HorizontalMovementComponent);
 
 	RightMovementComponent->SetOppositeSiteInterface(*LeftMovementComponent);
+	RightMovementComponent->SetDownSwitchRotationInterface(*ConvexRotationComponent);
 	RightMovementComponent->SetSideMovementComponent(*HorizontalMovementComponent);
 
 	RayProvider right(RightTrace);
 	RightMovementComponent->SetScanRay(right);
 
 	LeftMovementComponent->SetOppositeSiteInterface(*RightMovementComponent);
+	LeftMovementComponent->SetDownSwitchRotationInterface(*ConvexRotationComponent);
 	LeftMovementComponent->SetSideMovementComponent(*HorizontalMovementComponent);
 
 	RayProvider left(LeftTrace);
 	LeftMovementComponent->SetScanRay(left);
 
+	RayProvider backDown(BackDownTrace);
+	RayProvider faceDown(FrontDownTrace);
+	ConvexRotationComponent->SetBackScanRay(backDown);
+	ConvexRotationComponent->SetFrontScanRay(faceDown);
+
+
 	startRotation = Mesh->RelativeRotation;
-	
+	ConvexRotationComponent->SetForwardComponent(*ForwardMovementComponent);
 	this->SkeletalComponent->SetRotationBalance(Mesh->RelativeRotation);
 }
 

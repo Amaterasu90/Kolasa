@@ -30,6 +30,7 @@ private:
 	ISideDirectionMovement* sideComponent;
 	RayProvider _provider;
 	FVector lastHitLocation;
+	RotationSwitch* downInterface;
 protected:
 	float counter;
 	float countingDirection;
@@ -39,6 +40,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 	FHitResult GetRotationRayHit();
+	void SetDownSwitchRotationInterface(RotationSwitch& down);
 	void SetOppositeSiteInterface(RotationSwitch& opposite);
 	void SetScanRay(RayProvider provider);
 	void SmoothRotateToPlane(FHitResult& InHit, float DeltaTime);
@@ -46,6 +48,7 @@ public:
 protected:
 	FRotator GetOrtogonalToPlane(FHitResult& InHit);
 	RotationSwitch*& GetOtherInterface();
+	RotationSwitch*& GetDownSwitchRotationInterface();
 	FRotator GetRayRotation();
 	FVector GetRayBegin();
 	FVector GetScanArm(FVector startLocation);
@@ -53,7 +56,7 @@ private:
 	virtual bool IsReadyToEnableScanRotation(FVector right, FVector sideDirection) PURE_VIRTUAL(URotationMovementComponent::IsReadyToEnableScanRotation, { return false; });
 	virtual float CalcEndIteration(float oldRoll, float newRoll) PURE_VIRTUAL(URotationMovementComponent::CalcEndIteration, { return 0.0f; });
 	virtual float CalcIterationStep(float oldRoll, float newRoll, float deltaTime) PURE_VIRTUAL(URotationMovementComponent::CalcIterationStep, { return 0.0f; });
-	void CalcNewRotation(FHitResult& hit, RotationSwitch& otherSite);
-	virtual void SmoothRotate(float DeltaTime) PURE_VIRTUAL(URotationMovementComponent::SmoothRotate, {};);
+	void CalcNewRotation(FHitResult& hit, RotationSwitch& down, RotationSwitch& otherSite);
+	virtual void SmoothRotate(float DeltaTime, RotationSwitch& down) PURE_VIRTUAL(URotationMovementComponent::SmoothRotate, {};);
 	void FinalizeRotate(bool isReady);
 };

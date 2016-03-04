@@ -49,6 +49,10 @@ FHitResult URotationMovementComponent::GetRotationRayHit() {
 	return result;
 }
 
+void URotationMovementComponent::SetDownSwitchRotationInterface(RotationSwitch & down){
+	downInterface = &down;
+}
+
 void URotationMovementComponent::SetScanRay(RayProvider provider) {
 	_provider = provider;
 }
@@ -70,9 +74,10 @@ FVector URotationMovementComponent::GetScanArm(FVector startLocation) {
 
 void URotationMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float DeltaTime){
 	RotationSwitch* otherSiteRotation = GetOtherInterface();
-	CalcNewRotation(InHit, *otherSiteRotation);
+	RotationSwitch* downSwitchInterface = GetDownSwitchRotationInterface();
+	CalcNewRotation(InHit, *downSwitchInterface, *otherSiteRotation);
 	
-	SmoothRotate(DeltaTime);
+	SmoothRotate(DeltaTime, *downSwitchInterface);
 
 	if (RotationSwitch::IsDurningRotation())
 	{
@@ -80,7 +85,7 @@ void URotationMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float D
 		FVector sideDirection = sideComponent->GetDirection();
 		if (IsReadyToEnableScanRotation(right, sideDirection)){
 			otherSiteRotation->Activate();
-			otherSiteRotation->newRotation = UpdatedComponent->GetComponentRotation();
+			otherSiteRotation->newRotation = UpdatedComponent->GetComponentRotation(); 
 			RotationSwitch::StartSmootRotation();
 		}
 	}
@@ -88,6 +93,10 @@ void URotationMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float D
 
 RotationSwitch *& URotationMovementComponent::GetOtherInterface(){
 	return _oppositeSiteRotation;
+}
+
+RotationSwitch *& URotationMovementComponent::GetDownSwitchRotationInterface(){
+	return downInterface;
 }
 
 void URotationMovementComponent::SetOppositeSiteInterface(RotationSwitch& opposite) {
@@ -111,9 +120,10 @@ FRotator URotationMovementComponent::GetOrtogonalToPlane(FHitResult & InHit) {
 	return UKismetMathLibrary::MakeRotationFromAxes(newForward, newRight, newUp);
 }
 
-void URotationMovementComponent::CalcNewRotation(FHitResult & hit,  RotationSwitch& otherSite){
+void URotationMovementComponent::CalcNewRotation(FHitResult & hit, RotationSwitch& down,RotationSwitch& otherSite){
 	if (hit.IsValidBlockingHit()) {
 		otherSite.Deactivate();
+		down.Deactivate();
 		newRotation = GetOrtogonalToPlane(hit);
 	}
 }

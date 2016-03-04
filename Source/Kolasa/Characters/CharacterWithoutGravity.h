@@ -52,11 +52,11 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	USkeletalOrientationComponent* SkeletalComponent;
 
-	/*UPROPERTY(EditDefaultsOnly)
-	UForwardRotationComponent* ConvexRotationComponent;*/
+	UPROPERTY(EditDefaultsOnly)
+	UForwardRotationComponent* ConvexRotationComponent;
 
-	//UArrowComponent* FrontDownTrace;
-	//UArrowComponent* BackDownTrace;
+	UArrowComponent* FrontDownTrace;
+	UArrowComponent* BackDownTrace;
 	UArrowComponent* RightTrace;
 	UArrowComponent* LeftTrace;
 
