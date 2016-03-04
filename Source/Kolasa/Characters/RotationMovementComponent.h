@@ -21,32 +21,31 @@ public:
 	float end;
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "1000.0"))
 	float scanArmLenght = 100.0f;
-	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "10.0"))
-	float smoothClimbFactor = 1.0f;
+	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "100.0"))
+	float smoothClimbFactor = 50.0f;
 	UPROPERTY(EditAnywhere, Category = "Debug")
 	bool bTraceVisibilty = false;
 private:
 	RotationSwitch* _oppositeSiteRotation;
-	MoveSwitch* _downMovement;
 	ISideDirectionMovement* sideComponent;
 	RayProvider _provider;
+	FVector lastHitLocation;
+protected:
 	float counter;
 	float countingDirection;
-	FRotator newRotation;
-	FVector lastHitLocation;
+	float stepCounting;
+	FRotator clampedCurrent;
 public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 	FHitResult GetRotationRayHit();
 	void SetOppositeSiteInterface(RotationSwitch& opposite);
 	void SetScanRay(RayProvider provider);
-	void SetDown(MoveSwitch& down);
 	void SmoothRotateToPlane(FHitResult& InHit, float DeltaTime);
 	void SetSideMovementComponent(ISideDirectionMovement& sideComponent);
 protected:
 	FRotator GetOrtogonalToPlane(FHitResult& InHit);
 	RotationSwitch*& GetOtherInterface();
-	MoveSwitch*& GetDownInterface();
 	FRotator GetRayRotation();
 	FVector GetRayBegin();
 	FVector GetScanArm(FVector startLocation);
@@ -54,7 +53,7 @@ private:
 	virtual bool IsReadyToEnableScanRotation(FVector right, FVector sideDirection) PURE_VIRTUAL(URotationMovementComponent::IsReadyToEnableScanRotation, { return false; });
 	virtual float CalcEndIteration(float oldRoll, float newRoll) PURE_VIRTUAL(URotationMovementComponent::CalcEndIteration, { return 0.0f; });
 	virtual float CalcIterationStep(float oldRoll, float newRoll, float deltaTime) PURE_VIRTUAL(URotationMovementComponent::CalcIterationStep, { return 0.0f; });
-	void CalcNewRotation(FHitResult& hit, MoveSwitch& down, RotationSwitch& otherSite);
-	bool SmoothRotate(float DeltaTime);
-	void FinalizeRotate(bool isReady, MoveSwitch& downMovement);
+	void CalcNewRotation(FHitResult& hit, RotationSwitch& otherSite);
+	virtual void SmoothRotate(float DeltaTime) PURE_VIRTUAL(URotationMovementComponent::SmoothRotate, {};);
+	void FinalizeRotate(bool isReady);
 };

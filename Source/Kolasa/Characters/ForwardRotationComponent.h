@@ -3,33 +3,41 @@
 #pragma once
 
 #include "GameFramework/PawnMovementComponent.h"
-#include "ForwardMovementComponent.h"
+#include "RotationSwitch.h"
 #include "ForwardRotationComponent.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class KOLASA_API UForwardRotationComponent : public UPawnMovementComponent, public MoveSwitch
+class KOLASA_API UForwardRotationComponent : public UPawnMovementComponent, public RotationSwitch
 {
 	GENERATED_BODY()
 public:
-		UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "1000.0"))
-		float scanArmLenght = 100.0f;
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "10.0"))
-		float smoothClimbFactor = 1.0f;
+	float smoothClimbFactor = 1.0f;
 	UPROPERTY(EditAnywhere, Category = "Debug")
-		bool bTraceVisibilty = false;
+	bool bTraceVisibilty = false;
 private:
+	float backScanArmLenght = 101.0f;
+	float forwardScanArmLength = 500.0f;
 	UForwardMovementComponent* forwardComponent;
-	RayProvider _provider;
+	RayProvider backProvider;
+	RayProvider frontProvider;
+	FRotator backNewRotation, frontNewRotation;
+	float counter;
 public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
-	FHitResult GetRotationRayHit();
-	FRotator GetRayRotation();
-	FVector GetRayBegin();
-	FVector GetScanArm(FVector startLocation);
-	void SetScanRay(RayProvider provider);
+	FHitResult GetFrontRotationRayHit();
+	FRotator GetFrontRayRotation();
+	FVector GetFrontRayBegin();
+	FVector GetFrontScanArm(FVector startLocation);
+	void SetFrontScanRay(RayProvider provider);
+	FHitResult GetBackRotationRayHit();
+	FRotator GetBackRayRotation();
+	FVector GetBackRayBegin();
+	FVector GetBackScanArm(FVector startLocation);
+	void SetBackScanRay(RayProvider provider);
 	void SetForwardComponent(UForwardMovementComponent& forward);
 };

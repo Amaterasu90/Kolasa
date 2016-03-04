@@ -13,9 +13,9 @@ FVector RunnerMath::GetCleared(FVector vector, float tolerance) {
 
 FRotator RunnerMath::GetCleared(FRotator rotator) {
 	FRotator result;
-	result = FRotator((float)FMath::RoundToInt(rotator.Pitch),
-		(float)FMath::RoundToInt(rotator.Yaw),
-		(float)FMath::RoundToInt(rotator.Roll));
+	result = FRotator(FMath::Round(rotator.Pitch),
+		FMath::Round(rotator.Yaw),
+		FMath::Round(rotator.Roll));
 	return result;
 }
 

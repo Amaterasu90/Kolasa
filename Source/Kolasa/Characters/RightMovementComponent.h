@@ -17,4 +17,5 @@ public:
 	virtual bool IsReadyToEnableScanRotation(FVector right, FVector sideDirection) override;
 	virtual float CalcIterationStep(float oldRoll, float newRoll, float deltaTime) override;
 	virtual float CalcEndIteration(float oldRoll, float newRoll) override;
+	virtual void SmoothRotate(float DeltaTime) override;
 };

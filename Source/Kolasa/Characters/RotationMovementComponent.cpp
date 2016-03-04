@@ -10,6 +10,9 @@ void URotationMovementComponent::BeginPlay() {
 	RotationSwitch::Activate();
 	counter = 0.0f;
 	lastHitLocation = GetRayBegin();
+	newRotation = FRotator::ZeroRotator;
+	stepCounting = 0.0f;
+	clampedCurrent = FRotator::ZeroRotator;
 }
 
 void URotationMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) {
@@ -64,26 +67,20 @@ FVector URotationMovementComponent::GetScanArm(FVector startLocation) {
 	return startLocation + forwardVector * scanArmLenght;
 }
 
-void URotationMovementComponent::SetDown(MoveSwitch& down) {
-	_downMovement = &down;
-}
 
 void URotationMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float DeltaTime){
-	MoveSwitch* downMovement = GetDownInterface();
 	RotationSwitch* otherSiteRotation = GetOtherInterface();
-	CalcNewRotation(InHit, *downMovement, *otherSiteRotation);
-
-	bool durningRotation = SmoothRotate(DeltaTime);
-
-	FinalizeRotate(!durningRotation, *downMovement);
+	CalcNewRotation(InHit, *otherSiteRotation);
+	
+	SmoothRotate(DeltaTime);
 
 	if (RotationSwitch::IsDurningRotation())
 	{
 		FVector right = UpdatedComponent->GetRightVector();
 		FVector sideDirection = sideComponent->GetDirection();
-		if (IsReadyToEnableScanRotation(right, sideDirection))
-		{
+		if (IsReadyToEnableScanRotation(right, sideDirection)){
 			otherSiteRotation->Activate();
+			otherSiteRotation->newRotation = UpdatedComponent->GetComponentRotation();
 			RotationSwitch::StartSmootRotation();
 		}
 	}
@@ -93,21 +90,13 @@ RotationSwitch *& URotationMovementComponent::GetOtherInterface(){
 	return _oppositeSiteRotation;
 }
 
-MoveSwitch *& URotationMovementComponent::GetDownInterface(){
-	return _downMovement;
-}
-
-
 void URotationMovementComponent::SetOppositeSiteInterface(RotationSwitch& opposite) {
 	_oppositeSiteRotation = &opposite;
 }
 
-
-
 void URotationMovementComponent::SetSideMovementComponent(ISideDirectionMovement& sideComponent) {
 	this->sideComponent = &sideComponent;
 }
-
 
 FRotator URotationMovementComponent::GetOrtogonalToPlane(FHitResult & InHit) {
 	normalToPlane = InHit.ImpactNormal;
@@ -119,37 +108,23 @@ FRotator URotationMovementComponent::GetOrtogonalToPlane(FHitResult & InHit) {
 	newForward = crossRightAndUp;
 	newUp = normalToPlane;
 
-	return UKismetMathLibrary::MakeRotationFromAxes(newForward, newRight, newUp).Clamp();
+	return UKismetMathLibrary::MakeRotationFromAxes(newForward, newRight, newUp);
 }
 
-void URotationMovementComponent::CalcNewRotation(FHitResult & hit, MoveSwitch& down, RotationSwitch& otherSite){
+void URotationMovementComponent::CalcNewRotation(FHitResult & hit,  RotationSwitch& otherSite){
 	if (hit.IsValidBlockingHit()) {
-		down.Deactivate();
 		otherSite.Deactivate();
 		newRotation = GetOrtogonalToPlane(hit);
 	}
 }
 
-bool URotationMovementComponent::SmoothRotate(float DeltaTime)
-{
-	FRotator clampedCurrent = UpdatedComponent->GetComponentRotation().Clamp();
-	end = CalcEndIteration(clampedCurrent.Roll, newRotation.Roll);
-	bool condition = FMath::Abs(counter) < FMath::Abs(end) && newRotation != FRotator::ZeroRotator;
-	
-	if (condition) {
-		UpdatedComponent->SetRelativeRotation(FRotator(newRotation.Pitch, newRotation.Yaw, clampedCurrent.Roll + counter));
-		counter += CalcIterationStep(clampedCurrent.Roll, newRotation.Roll, DeltaTime);
-	}
-	
-	return condition;
-}
-
-void URotationMovementComponent::FinalizeRotate(bool isReady, MoveSwitch& downMovement){
+void URotationMovementComponent::FinalizeRotate(bool isReady){
 	if (isReady && counter != 0.0f) {
-		UpdatedComponent->SetRelativeRotation(newRotation);
-		downMovement.Activate();
+		/*UpdatedComponent->SetRelativeRotation(newRotation);
 		counter = 0.0f;
+		stepCounting = 0.0f;
 		newRotation = FRotator::ZeroRotator;
-		RotationSwitch::EndSmootRotation();
+		clampedCurrent = FRotator::ZeroRotator;
+		RotationSwitch::EndSmootRotation();*/
 	}
 }

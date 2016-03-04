@@ -11,6 +11,7 @@ class KOLASA_API RotationSwitch : public ASwitch
 public:
 	bool bIsEndSmoothRotation;
 public:
+	FRotator newRotation;
 	virtual void EndSmootRotation();
 	virtual void StartSmootRotation();
 	bool IsDurningRotation();

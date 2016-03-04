@@ -6,10 +6,6 @@
 #include "ForwardMovementComponent.h"
 #include "GravityMovementComponent.h"
 
-void UGravityMovementComponent::SetBlockForward(MoveSwitch& forward){
-	forwardMovement = &forward;
-}
-
 void UGravityMovementComponent::BeginPlay() {
 	MoveSwitch::Activate();
 	FVector gravityDirection = (-UpdatedComponent->GetUpVector()).GetClampedToMaxSize(1.0f);
@@ -17,14 +13,14 @@ void UGravityMovementComponent::BeginPlay() {
 }
 
 void UGravityMovementComponent::ManageBlockMove(FHitResult& result) {
-	/*if (result.IsValidBlockingHit()) {
-		forwardMovement->Activate();
+	if (result.IsValidBlockingHit()) {
+		//forwardMovement->Activate();
 		sideMovement->Activate();
 	}
 	else {
-		forwardMovement->Deactivate();
+		//forwardMovement->Deactivate();
 		sideMovement->Deactivate();
-	}*/
+	}
 }
 
 void UGravityMovementComponent::Move(FVector value){
