@@ -10,7 +10,7 @@ void URotationMovementComponent::BeginPlay() {
 	RotationSwitch::Activate();
 	counter = 0.0f;
 	lastHitLocation = GetRayBegin();
-	newRotation = FRotator::ZeroRotator;
+	newRotation = UpdatedComponent->GetComponentRotation();
 	stepCounting = 0.0f;
 	clampedCurrent = FRotator::ZeroRotator;
 }
@@ -67,7 +67,7 @@ FVector URotationMovementComponent::GetRayBegin() {
 
 FVector URotationMovementComponent::GetScanArm(FVector startLocation) {
 	FRotator currentRotation = GetRayRotation();
-	FVector forwardVector = RunnerMath::GetCleared(UKismetMathLibrary::GetForwardVector(currentRotation), 0.01f);
+	FVector forwardVector = UKismetMathLibrary::GetForwardVector(currentRotation);
 	return startLocation + forwardVector * scanArmLenght;
 }
 
@@ -85,6 +85,7 @@ void URotationMovementComponent::SmoothRotateToPlane(FHitResult & InHit, float D
 		FVector sideDirection = sideComponent->GetDirection();
 		if (IsReadyToEnableScanRotation(right, sideDirection)){
 			otherSiteRotation->Activate();
+			downSwitchInterface->Activate();
 			otherSiteRotation->newRotation = UpdatedComponent->GetComponentRotation(); 
 			RotationSwitch::StartSmootRotation();
 		}
@@ -124,7 +125,8 @@ void URotationMovementComponent::CalcNewRotation(FHitResult & hit, RotationSwitc
 	if (hit.IsValidBlockingHit()) {
 		otherSite.Deactivate();
 		down.Deactivate();
-		newRotation = GetOrtogonalToPlane(hit);
+		if(counter == 0.0f)
+			newRotation = GetOrtogonalToPlane(hit);
 	}
 }
 

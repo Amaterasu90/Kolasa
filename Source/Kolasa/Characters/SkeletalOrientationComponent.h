@@ -24,9 +24,11 @@ public:
 	float rightDeviation = 45.0f;
 	UPROPERTY(EditAnywhere)
 	float SkeletalRotationFactor = 1.0f;
+	float counter;
 public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 	virtual void AddInputAxis(float accelerationAxis);
 	virtual float ConsumeAxis();
+	virtual void BeginPlay() override;
 	void SetRotationBalance(FRotator rotationBalance);
 };

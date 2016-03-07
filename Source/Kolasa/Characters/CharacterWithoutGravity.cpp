@@ -53,12 +53,12 @@ void ACharacterWithoutGravity::InitializeMovementComponent(){
 
 void ACharacterWithoutGravity::InitializeDownTrace(){
 	BackDownTrace = CreateDefaultSubobject<UArrowComponent>("BackDownTrace");
-	BackDownTrace->SetRelativeLocation(-FVector(2.0f*Capsule->GetScaledCapsuleRadius(),0.0f,0.0f));
+	BackDownTrace->SetRelativeLocation(FVector(-Capsule->GetScaledCapsuleRadius(), 0.0f,0.0f));
 	BackDownTrace->RelativeRotation = FRotator(270.0f, 0.0f, 0.0f);
 	BackDownTrace->AttachTo(RootComponent);
 
 	FrontDownTrace = CreateDefaultSubobject<UArrowComponent>("FrontDownTrace");
-	FrontDownTrace->SetRelativeLocation(FVector(2.0f*Capsule->GetScaledCapsuleRadius(), 0.0f, 0.0f));
+	FrontDownTrace->SetRelativeLocation(FVector(Capsule->GetScaledCapsuleRadius(), 0.0f, 0.0f));
 	FrontDownTrace->RelativeRotation = FRotator(270.0f, 0.0f, 0.0f);
 	FrontDownTrace->AttachTo(RootComponent);
 }
@@ -83,13 +83,10 @@ FRotator ACharacterWithoutGravity::GetYawRotator() {
 }
 
 void ACharacterWithoutGravity::EventMoveRight(float AxisValue){
-	
-	if (AxisValue != 0.0f) {
-		FVector RightVector = GetActorRightVector();
-		HorizontalMovementComponent->AddInputVector(RunnerMath::GetCleared(RightVector, 0.01f) * AxisValue);
+	FVector RightVector = GetActorRightVector();
+	HorizontalMovementComponent->AddInputVector(RightVector * AxisValue);
 		
-		this->SkeletalComponent->AddInputAxis(AxisValue);
-	}
+	this->SkeletalComponent->AddInputAxis(AxisValue);
 }
 
 void ACharacterWithoutGravity::EventMeshPitchRotation(float AxisValue){
@@ -145,6 +142,7 @@ void ACharacterWithoutGravity::BeginPlay(){
 	
 	ForwardMovementComponent->SetBlockDown(*GravityMovementComponent);
 	GravityMovementComponent->SetBlockSide(*HorizontalMovementComponent);
+	GravityMovementComponent->SetBlockForward(*ForwardMovementComponent);
 
 	RightMovementComponent->SetOppositeSiteInterface(*LeftMovementComponent);
 	RightMovementComponent->SetDownSwitchRotationInterface(*ConvexRotationComponent);
@@ -165,9 +163,9 @@ void ACharacterWithoutGravity::BeginPlay(){
 	ConvexRotationComponent->SetBackScanRay(backDown);
 	ConvexRotationComponent->SetFrontScanRay(faceDown);
 
-
 	startRotation = Mesh->RelativeRotation;
-	ConvexRotationComponent->SetForwardComponent(*ForwardMovementComponent);
+	ConvexRotationComponent->SetLeftComponent(*LeftMovementComponent);
+	ConvexRotationComponent->SetRightComponent(*RightMovementComponent);
 	this->SkeletalComponent->SetRotationBalance(Mesh->RelativeRotation);
 }
 

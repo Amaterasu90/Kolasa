@@ -14,8 +14,8 @@ void UForwardRotationComponent::TickComponent(float DeltaTime, enum ELevelTick T
 	FHitResult backHit = GetBackRotationRayHit();
 	FHitResult frontHit = GetFrontRotationRayHit();
 	
-	if (RotationSwitch::IsActive()) {
-		if (backHit.IsValidBlockingHit()) {
+	if (RotationSwitch::IsActive() ) {
+		if (backHit.IsValidBlockingHit() && frontHit.IsValidBlockingHit()) {
 			FVector backNormal = backHit.ImpactNormal;
 			FVector backForward = UpdatedComponent->GetForwardVector();
 			FVector backUp = UpdatedComponent->GetUpVector();
@@ -23,10 +23,6 @@ void UForwardRotationComponent::TickComponent(float DeltaTime, enum ELevelTick T
 			FVector backNewForward = UKismetMathLibrary::Cross_VectorVector(backNormal, backNewRight);
 			FVector backNewUp = backNormal;
 			backNewRotation = UKismetMathLibrary::MakeRotationFromAxes(backNewForward, -backNewRight, backNewUp);
-			UpdatedComponent->SetRelativeRotation(RunnerMath::GetCleared(backNewRotation));
-			forwardComponent->SetDirection(backNewForward);
-		}
-		else if (!backHit.IsValidBlockingHit() && frontHit.IsValidBlockingHit()) {
 
 			FVector frontNormal = frontHit.ImpactNormal;
 			FVector frontForward = UpdatedComponent->GetForwardVector();
@@ -35,8 +31,11 @@ void UForwardRotationComponent::TickComponent(float DeltaTime, enum ELevelTick T
 			FVector frontNewForward = UKismetMathLibrary::Cross_VectorVector(frontNormal, frontNewRight);
 			FVector frontNewUp = frontNormal;
 			frontNewRotation = UKismetMathLibrary::MakeRotationFromAxes(frontNewForward, -frontNewRight, frontNewUp);
-			UpdatedComponent->SetRelativeRotation(RunnerMath::GetCleared(frontNewRotation));
-			forwardComponent->SetDirection(frontNewForward);
+
+			FRotator result = FMath::Lerp(backNewRotation, frontNewRotation, 0.5f);
+			right->newRotation = result;
+			left->newRotation = result;
+			UpdatedComponent->SetRelativeRotation(result);
 		}
 	}
 }
@@ -77,7 +76,7 @@ FVector UForwardRotationComponent::GetFrontScanArm(FVector startLocation)
 {
 	FRotator currentRotation = GetFrontRayRotation();
 	FVector forwardVector = UKismetMathLibrary::GetForwardVector(currentRotation);
-	return startLocation + forwardVector * forwardScanArmLength;
+	return startLocation + forwardVector * backScanArmLenght;
 }
 
 void UForwardRotationComponent::SetFrontScanRay(RayProvider provider){
@@ -117,8 +116,12 @@ void UForwardRotationComponent::SetBackScanRay(RayProvider provider) {
 	backProvider = provider;
 }
 
-void UForwardRotationComponent::SetForwardComponent(UForwardMovementComponent& forward){
-	forwardComponent = &forward;
+void UForwardRotationComponent::SetLeftComponent(RotationSwitch& componentRef){
+	left = &componentRef;
+}
+
+void UForwardRotationComponent::SetRightComponent(RotationSwitch & componentRef){
+	right = &componentRef;
 }
 
 FVector UForwardRotationComponent::GetBackScanArm(FVector startLocation) {

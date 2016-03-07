@@ -19,9 +19,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Debug")
 	bool bTraceVisibilty = false;
 private:
-	float backScanArmLenght = 101.0f;
-	float forwardScanArmLength = 500.0f;
-	UForwardMovementComponent* forwardComponent;
+	float backScanArmLenght = 200.0f;
+	RotationSwitch* left;
+	RotationSwitch* right;
+	bool flag = true;
 	RayProvider backProvider;
 	RayProvider frontProvider;
 	FRotator backNewRotation, frontNewRotation;
@@ -39,5 +40,6 @@ public:
 	FVector GetBackRayBegin();
 	FVector GetBackScanArm(FVector startLocation);
 	void SetBackScanRay(RayProvider provider);
-	void SetForwardComponent(UForwardMovementComponent& forward);
+	void SetLeftComponent(RotationSwitch& componentRef);
+	void SetRightComponent(RotationSwitch& componentRef);
 };

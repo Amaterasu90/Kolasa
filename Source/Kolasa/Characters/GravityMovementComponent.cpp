@@ -14,11 +14,11 @@ void UGravityMovementComponent::BeginPlay() {
 
 void UGravityMovementComponent::ManageBlockMove(FHitResult& result) {
 	if (result.IsValidBlockingHit()) {
-		//forwardMovement->Activate();
+		forwardMovement->Activate();
 		sideMovement->Activate();
 	}
 	else {
-		//forwardMovement->Deactivate();
+		forwardMovement->Deactivate();
 		sideMovement->Deactivate();
 	}
 }
@@ -57,4 +57,8 @@ void UGravityMovementComponent::SetBlockLeft(RotationSwitch& left){
 
 void UGravityMovementComponent::SetBlockRight(RotationSwitch& right){
 	rightRotation = &right;
+}
+
+void UGravityMovementComponent::SetBlockForward(MoveSwitch & forward){
+	forwardMovement = &forward;
 }

@@ -8,8 +8,8 @@
 
 void UForwardMovementComponent::BeginPlay() {
 	SetDirection(UpdatedComponent->GetForwardVector());
-	ActivateMove();
-	//DeactivateMove();
+	//ActivateMove();
+	DeactivateMove();
 }
 
 void UForwardMovementComponent::Move(FVector value){
@@ -35,7 +35,7 @@ void UForwardMovementComponent::ActivateMove(){
 
 void UForwardMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	SetDirection(UpdatedComponent->GetForwardVector());
 	FVector desiredStepMove = GetDisplacement(DeltaTime);
 	Move(desiredStepMove);
 }

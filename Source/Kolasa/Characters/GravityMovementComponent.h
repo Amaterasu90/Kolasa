@@ -18,12 +18,14 @@ private:
 	MoveSwitch* sideMovement;
 	RotationSwitch* leftRotation;
 	RotationSwitch* rightRotation;
+	MoveSwitch* forwardMovement;
 public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 	void SetBlockSide(MoveSwitch& side);
 	void SetBlockLeft(RotationSwitch& left);
 	void SetBlockRight(RotationSwitch& right);
+	void SetBlockForward(MoveSwitch& forward);
 protected:
 	void Move(FVector value);
 private:
